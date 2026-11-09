@@ -2,12 +2,12 @@
 <html lang="de"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Zündfunke T4 &amp; TT</title>
-<meta name="description" content="Zündfunke: Stammbuch für Youngtimer. Statische Web-App, alle Daten bleiben lokal im Browser.">
+<title>Youngtimer-Spark</title>
+<meta name="description" content="Youngtimer-Spark: Das autarke Bordbuch für Youngtimer-Enthusiasten. Statische Web-App, alle Daten bleiben lokal im Browser.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Zündfunke">
+<meta name="apple-mobile-web-app-title" content="Y-Spark">
 <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
@@ -420,7 +420,7 @@ details.wk .wbody p{margin:0 0 8px}
 <body>
 <div class="app">
 <aside class="side" aria-label="Navigation">
-  <div class="brand"><b>Zündfunke</b><span>Das Stammbuch für Youngtimer</span></div>
+  <div class="brand"><b>Youngtimer-Spark</b><span>Das Bordbuch für Youngtimer</span></div>
   <div class="sidegrp sg-veh"><div class="sidelabel">Fahrzeug</div><div class="veh" id="veh" role="group" aria-label="Fahrzeug wählen"></div></div>
   <div class="sidegrp sg-menu"><div class="sidelabel">Menü</div>
 <nav class="tabs" role="tablist" id="tabs">
@@ -439,7 +439,7 @@ details.wk .wbody p{margin:0 0 8px}
 <main class="wrap">
 <header class="top">
   <div>
-    <h1 id="pagetitle">Zündfunke</h1>
+    <h1 id="pagetitle">Youngtimer-Spark</h1>
     <div class="sub" id="pagesub">Das Stammbuch für Youngtimer</div>
   </div>
   <div class="stamp" id="stamp"></div>
@@ -999,7 +999,7 @@ async function persistPkm(){
   const put = async (name, text) => {
     let r;
     try{ r = await fetch('api/daten/' + name + '.csv', {method: 'PUT', headers: {'X-Zuendfunke': '1', 'If-Match': PKM.etag[name] || 'none', 'Content-Type': 'text/csv'}, body: text}); }
-    catch(err){ pkmErr = 'Keine Verbindung zum Hilfsprogramm. Läuft das Terminal-Fenster „Zündfunke“ noch?'; return false; }
+    catch(err){ pkmErr = 'Keine Verbindung zum Hilfsprogramm. Läuft das Terminal-Fenster mit dem Hilfsprogramm noch?'; return false; }
     if(r.status === 409){ pkmErr = 'conflict'; return false; }
     if(!r.ok){ pkmErr = 'Schreiben in den PKM-Ordner fehlgeschlagen (' + r.status + ').'; return false; }
     const j = await r.json(); PKM.etag[name] = j.etag; PKM.text[name] = text; return true;
@@ -1115,7 +1115,7 @@ function updateNotice(){
   const el = $('#notice'); if(!el) return; const m = [];
   const go = '<a href="#" data-goto="daten">Daten</a>';
   if(PKM){
-    if(PKM.offline) m.push(['bad', '<b>Hilfsprogramm nicht erreichbar.</b> Änderungen können gerade nicht gespeichert werden. Läuft das Terminal-Fenster „Zündfunke“ noch?']);
+    if(PKM.offline) m.push(['bad', '<b>Hilfsprogramm nicht erreichbar.</b> Änderungen können gerade nicht gespeichert werden. Läuft das Terminal-Fenster mit dem Hilfsprogramm noch?']);
     if(PKM.note) m.push(['warn', esc(PKM.note)]);
     if(!E.length) m.push(['warn', '<b>Keine Einträge</b> in Daten/eintraege.csv gefunden.']);
     el.innerHTML = m.map(([c, h]) => `<div class="alert ${c === 'warn' ? 'warn' : ''}"><div>${h}</div></div>`).join('');
@@ -1495,7 +1495,7 @@ function renderVeh(){
   const mk = (v,t,n,k) => `<button type="button" data-veh="${v}" aria-pressed="${VEH===v}" style="--vc:var(${v==='TT'?'--tt':v==='T4'?'--t4':'--accent'})"><span class="vt">${t}</span><span class="vn">${n}</span><span class="vk">${k}</span></button>`;
   $('#veh').innerHTML = mk('T4','T4','VW T4 Multivan',kmf(CUR.T4.km)) + mk('TT','TT','Audi TT quattro',kmf(CUR.TT.km)) + mk('alle','Alle','Beide + Werkstatt','Gesamt');
   const t = $('#pagetitle'), sb = $('#pagesub');
-  if(VEH==='alle'){ t.textContent = 'Zündfunke'; sb.textContent = 'T4 & TT im Überblick'; }
+  if(VEH==='alle'){ t.textContent = 'Youngtimer-Spark'; sb.textContent = 'T4 & TT im Überblick'; }
   else { t.textContent = CARS[VEH].name; sb.textContent = CARS[VEH].model; }
 }
 function setVeh(v){

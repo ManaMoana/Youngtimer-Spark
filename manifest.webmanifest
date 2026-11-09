@@ -1,7 +1,7 @@
 {
-  "name": "Zündfunke T4 & TT",
-  "short_name": "Zündfunke",
-  "description": "Stammbuch für Youngtimer. Alle Daten bleiben lokal im Browser.",
+  "name": "Youngtimer-Spark",
+  "short_name": "Y-Spark",
+  "description": "Das autarke Bordbuch für Youngtimer-Enthusiasten. Alle Daten bleiben lokal im Browser.",
   "lang": "de",
   "start_url": "./",
   "scope": "./",

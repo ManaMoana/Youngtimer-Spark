@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Zündfunke: Hilfsprogramm für den Mac.
+"""Youngtimer-Spark: Hilfsprogramm für den Mac.
 
 Liefert die App unter http://localhost:8765 aus und liest/schreibt die drei
 Datendateien (eintraege.csv, service.csv, wartungsplan.csv) direkt im Ordner
@@ -229,8 +229,8 @@ def main():
     try:
         srv = Server(("127.0.0.1", PORT), Handler)
     except OSError as e:
-        sys.exit("Port %d ist belegt (%s). Läuft Zündfunke schon? Dann einfach http://localhost:%d öffnen." % (PORT, e, PORT))
-    print("Zündfunke läuft: http://localhost:%d" % PORT)
+        sys.exit("Port %d ist belegt (%s). Läuft Youngtimer-Spark schon? Dann einfach http://localhost:%d öffnen." % (PORT, e, PORT))
+    print("Youngtimer-Spark läuft: http://localhost:%d" % PORT)
     print("Daten: %s" % DATA)
     print("Beenden mit Strg+C oder Fenster schließen.")
     try:
