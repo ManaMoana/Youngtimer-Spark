@@ -1,4 +1,4 @@
-# Zündfunke – Das autarke Bordbuch für Youngtimer-Enthusiasten
+# Youngtimer-Spark – Das autarke Bordbuch für Youngtimer-Enthusiasten
 
 Behalte den Überblick über Wartungsintervalle, Werkstattkosten, Ersatzteile und dein gesammeltes Wissen. Die kompromisslose Web-App: Läuft rein lokal im Browser – komplett ohne Server, Account oder KI-Dienst.
 
