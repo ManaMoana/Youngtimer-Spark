@@ -5,6 +5,9 @@ Liefert die App unter http://localhost:8765 aus und liest/schreibt die drei
 Datendateien (eintraege.csv, service.csv, wartungsplan.csv) direkt im Ordner
 Daten/ des PKM. Nur Python 3 (Standardbibliothek), keine Installation nötig.
 
+Protokoll: jede Speicherung wird in Daten/.app-protokoll vermerkt (Zeit, Datei,
+Prüfsumme vorher/nachher, Zeilenzahl, neu/entfernt).
+
 Sicherheit: lauscht nur auf 127.0.0.1, akzeptiert nur die Host-Namen localhost
 und 127.0.0.1, schreibt ausschließlich die drei Dateinamen, prüft Origin und
 einen eigenen Header, sichert die Datei vor dem Überschreiben und schreibt
@@ -14,7 +17,7 @@ Ordner: Standard ist ../Daten relativ zu diesem Skript (liegt es unter
 Projects/Youngtimer/App/, ist das Projects/Youngtimer/Daten). Abweichend:
 Umgebungsvariable ZF_DATA. Port: ZF_PORT (Standard 8765).
 """
-import hashlib, http.server, json, mimetypes, os, pathlib, shutil, socketserver, sys, threading, time
+import csv, hashlib, http.server, io, json, mimetypes, os, pathlib, shutil, socketserver, sys, threading, time
 
 HERE = pathlib.Path(__file__).resolve().parent
 DATA = pathlib.Path(os.environ.get("ZF_DATA") or (HERE.parent / "Daten")).resolve()
@@ -25,6 +28,8 @@ NAMES = {
     "wartungsplan": "fahrzeug,gruppe,aufgabe,intervall_km,",
 }
 BACKUP_DIR = DATA / "Backup-App"
+PROTOKOLL = DATA / ".app-protokoll"
+PROTOKOLL_KOPF = "zeit,datei,md5_vorher,md5_nachher,zeilen_vorher,zeilen_nachher,neu,entfernt,quelle"
 BACKUP_EVERY = 3600      # höchstens ein Backup pro Datei und Stunde
 BACKUP_KEEP = 30         # so viele Backups je Datei bleiben liegen
 MAX_BYTES = 20 * 1024 * 1024
@@ -71,6 +76,39 @@ def backup(name):
     mine = sorted(BACKUP_DIR.glob(name + "-*.csv"))
     for old in mine[:-BACKUP_KEEP]:
         old.unlink()
+
+
+def rows_of(b):
+    try:
+        text = b.decode("utf-8-sig")
+        return [tuple(r) for r in csv.reader(io.StringIO(text, newline=""))][1:]
+    except Exception:
+        return None
+
+
+def protokoll(name, old_bytes, new_bytes):
+    """Hängt eine Zeile an .app-protokoll an: Wer hat wann was geschrieben.
+    Der Abgleich kann damit prüfen, ob der Stand in .pruefsummen von der App stammt.
+    Ein Fehler hier darf das Speichern nie verhindern."""
+    try:
+        a = rows_of(old_bytes) if old_bytes is not None else []
+        b = rows_of(new_bytes)
+        if a is None or b is None:
+            n_neu = n_weg = n_a = n_b = -1
+        else:
+            sa, sb = set(a), set(b)
+            n_a, n_b = len(a), len(b)
+            n_neu, n_weg = len(sb - sa), len(sa - sb)
+        line = ",".join([time.strftime("%Y-%m-%dT%H:%M:%S%z"), name + ".csv",
+                         md5(old_bytes) if old_bytes is not None else "none", md5(new_bytes),
+                         str(n_a), str(n_b), str(n_neu), str(n_weg), "app"])
+        new_file = not PROTOKOLL.is_file()
+        with open(PROTOKOLL, "a", encoding="utf-8", newline="") as f:
+            if new_file:
+                f.write(PROTOKOLL_KOPF + "\n")
+            f.write(line + "\n")
+    except Exception as e:
+        sys.stderr.write("Protokoll nicht geschrieben: %s\n" % e)
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -161,7 +199,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         want = (self.headers.get("If-Match") or "").strip('"')
         with LOCK:
             p = path_of(name)
-            cur = md5(p.read_bytes()) if p.is_file() else "none"
+            old = p.read_bytes() if p.is_file() else None
+            cur = md5(old) if old is not None else "none"
             if want != cur:
                 return self.json(409, {"fehler": "Datei wurde zwischenzeitlich geändert", "etag": cur})
             DATA.mkdir(parents=True, exist_ok=True)
@@ -170,6 +209,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
             tmp.write_bytes(body)
             os.replace(tmp, p)
             write_sums()
+            protokoll(name, old, body)
         return self.json(200, {"ok": True, "etag": md5(body)}, {"ETag": '"%s"' % md5(body)})
 
     def do_OPTIONS(self):

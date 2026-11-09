@@ -1,6 +1,6 @@
-# Zündfunke
+# Zündfunke – Das autarke Bordbuch für Youngtimer-Enthusiasten
 
-Stammbuch für Youngtimer (VW T4 und Audi TT): Journal, Fälligkeiten, Kosten, Chronik, Lager, Bestellungen und Wissen in einer einzigen statischen Web-App. Kein Server, kein Konto, kein KI-Dienst nötig.
+Behalte den Überblick über Wartungsintervalle, Werkstattkosten, Ersatzteile und dein gesammeltes Wissen. Die kompromisslose Web-App: Läuft rein lokal im Browser – komplett ohne Server, Account oder KI-Dienst.
 
 ## Datenschutz
 - Dieses Repository enthält **nur Programmcode**, keine persönlichen Daten.
@@ -20,6 +20,8 @@ Safari kann nicht selbst in Ordner schreiben. Deshalb gibt es das Hilfsprogramm 
 1. Ordner `App/` neben den Ordner `Daten/` legen (z. B. `Projects/Youngtimer/App/` und `Projects/Youngtimer/Daten/`).
 2. `Zuendfunke starten.command` doppelklicken. Safari öffnet `http://localhost:8765`.
 3. Die App liest und schreibt dann direkt `Daten/eintraege.csv`, `service.csv` und `wartungsplan.csv`. Der Menüpunkt Daten zeigt den PKM-Modus an.
+
+Protokoll: Jede Speicherung wird in `Daten/.app-protokoll` vermerkt (Zeit, Datei, Prüfsumme vorher/nachher, Zeilenzahl, neu/entfernt), damit nachvollziehbar bleibt, ob ein Stand von der App stammt.
 
 Schutz: nur 127.0.0.1, nur diese drei Dateien, Konfliktschutz (ETag): Hat ein anderer Prozess die Datei geändert, überschreibt die App nichts, sondern lädt neu. Vor dem Schreiben Sicherung in `Daten/Backup-App/` (höchstens eine je Stunde, 30 bleiben). `Daten/.pruefsummen` wird mitgeführt. Anderer Datenordner: Umgebungsvariable `ZF_DATA`, anderer Port: `ZF_PORT`.
 
