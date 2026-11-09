@@ -15,6 +15,16 @@ Stammbuch für Youngtimer (VW T4 und Audi TT): Journal, Fälligkeiten, Kosten, C
 
 iPhone: In Safari „Teilen“ > „Zum Home-Bildschirm“. Die App läuft dann im Vollbild und offline.
 
+## PKM-Modus (Mac, Safari)
+Safari kann nicht selbst in Ordner schreiben. Deshalb gibt es das Hilfsprogramm `pkm/server.py` (nur Python 3, nichts zu installieren):
+1. Ordner `App/` neben den Ordner `Daten/` legen (z. B. `Projects/Youngtimer/App/` und `Projects/Youngtimer/Daten/`).
+2. `Zuendfunke starten.command` doppelklicken. Safari öffnet `http://localhost:8765`.
+3. Die App liest und schreibt dann direkt `Daten/eintraege.csv`, `service.csv` und `wartungsplan.csv`. Der Menüpunkt Daten zeigt den PKM-Modus an.
+
+Schutz: nur 127.0.0.1, nur diese drei Dateien, Konfliktschutz (ETag): Hat ein anderer Prozess die Datei geändert, überschreibt die App nichts, sondern lädt neu. Vor dem Schreiben Sicherung in `Daten/Backup-App/` (höchstens eine je Stunde, 30 bleiben). `Daten/.pruefsummen` wird mitgeführt. Anderer Datenordner: Umgebungsvariable `ZF_DATA`, anderer Port: `ZF_PORT`.
+
+Das iPhone nutzt weiter den Browser-Speicher mit CSV-Import/-Export über die Dateien-App.
+
 ## Datenformat
 Das Journal hat 27 Spalten: `id, fahrzeug, datum, datum_abgeleitet, km, typ, status, prio, bereich, titel, betrag, kostenart, zweck, zweck_status, betrag_geplant, auf_lager, lagerort, box, fach, bestellt_am, notiz, eltern_id, quelle, kategorie, unterkategorie, kat_status, platz` (UTF-8, Komma, Dezimalpunkt). Der CSV-Export ist byte-gleich zum Import, solange nichts geändert wurde.
 

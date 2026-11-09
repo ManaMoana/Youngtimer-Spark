@@ -522,7 +522,19 @@ const Store = (() => {
 await Store.open();
 try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
 const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
-const RAW = {meta:{stand:todayIso()}, e:(await Store.get('e'))||[], s:(await Store.get('s'))||[], p:(await Store.get('p'))||[]};
+let PKM = null;
+try{ const r = await fetch('api/status', {cache:'no-store'}); if(r.ok){ const j = await r.json(); if(j && j.app === 'zuendfunke-pkm') PKM = {dir:j.dir, etag:{}, text:{}, note:'', offline:false}; } }catch(e){}
+const readPkm = async () => {
+  const out = {};
+  for(const n of ['eintraege','service','wartungsplan']){
+    let t = '';
+    try{ const r = await fetch('api/daten/' + n + '.csv', {cache:'no-store'}); if(r.ok){ t = await r.text(); PKM.etag[n] = (r.headers.get('ETag')||'').replace(/"/g,''); } else PKM.etag[n] = 'none'; }catch(e){ PKM.etag[n] = 'none'; }
+    PKM.text[n] = t; out[n] = t ? parseCSV(t).rows : [];
+  }
+  return out;
+};
+const pk0 = PKM ? await readPkm() : null;
+const RAW = {meta:{stand:todayIso()}, e: pk0 ? pk0.eintraege.map(r => ({...BLANK, ...r})) : (await Store.get('e'))||[], s: pk0 ? pk0.service : (await Store.get('s'))||[], p: pk0 ? pk0.wartungsplan : (await Store.get('p'))||[]};
 let WISSEN = (await Store.get('wissen'))||{};
 let LOG = (await Store.get('log'))||[];
 let APPMETA = (await Store.get('meta'))||{};
@@ -549,7 +561,8 @@ const day = s => new Date(s + 'T12:00:00');
 const addDays = (dt, n) => new Date(dt.getTime() + n*864e5);
 const iso = dt => dt.toISOString().slice(0,10);
 
-let E = RAW.e.map(x => ({...BLANK, ...x, _o:{km:x.km, betrag:x.betrag, betrag_geplant:x.betrag_geplant}, betrag: x.betrag===''?null:+x.betrag, km: x.km===''?null:+x.km, betrag_geplant: x.betrag_geplant===''?null:+x.betrag_geplant}));
+const mapE = x => ({...BLANK, ...x, _o:{km:x.km, betrag:x.betrag, betrag_geplant:x.betrag_geplant}, betrag: x.betrag===''?null:+x.betrag, km: x.km===''?null:+x.km, betrag_geplant: x.betrag_geplant===''?null:+x.betrag_geplant});
+let E = RAW.e.map(mapE);
 const byId = Object.fromEntries(E.map(x => [x.id, x]));
 let pending = [];            // Dashboard-Eingaben aus der Datenbank, noch nicht abgeglichen
 let pendingStatus = {};      // ref-id -> status
@@ -975,22 +988,61 @@ function serviceRow(x){
   return {fahrzeug: x.fahrzeug, gruppe: pl ? pl.gruppe : 'Wartung/Wechsel', aufgabe: task, km: String(x.km), datum: x.datum, status: 'erledigt', km_geschaetzt: '', notiz: 'App ' + x.id};
 }
 function rollback(entry){
-  if(entry.svc){ const i = RAW.s.indexOf(entry.svc); if(i >= 0){ RAW.s.splice(i, 1); Store.set('s', RAW.s); } entry.svc = null; }
+  if(entry.svc){ const i = RAW.s.indexOf(entry.svc); if(i >= 0){ RAW.s.splice(i, 1); if(!PKM) Store.set('s', RAW.s); else svcDirty = false; } entry.svc = null; }
   const u = entry.undo; if(!u) return;
   if(u.remove){ const i = E.findIndex(x => x.id === u.remove); if(i >= 0) E.splice(i, 1); delete byId[u.remove]; }
   else if(u.restore){ const x = byId[u.restore.id]; if(x) Object.assign(x, u.restore); }
 }
+let pkmErr = '', svcDirty = false, saving = 0;
+async function persistPkm(){
+  pkmErr = '';
+  const put = async (name, text) => {
+    let r;
+    try{ r = await fetch('api/daten/' + name + '.csv', {method: 'PUT', headers: {'X-Zuendfunke': '1', 'If-Match': PKM.etag[name] || 'none', 'Content-Type': 'text/csv'}, body: text}); }
+    catch(err){ pkmErr = 'Keine Verbindung zum Hilfsprogramm. Läuft das Terminal-Fenster „Zündfunke“ noch?'; return false; }
+    if(r.status === 409){ pkmErr = 'conflict'; return false; }
+    if(!r.ok){ pkmErr = 'Schreiben in den PKM-Ordner fehlgeschlagen (' + r.status + ').'; return false; }
+    const j = await r.json(); PKM.etag[name] = j.etag; PKM.text[name] = text; return true;
+  };
+  const t = toCSV(COLS, E.map(eToRec));
+  if(t !== PKM.text.eintraege && !(await put('eintraege', t))) return false;
+  if(svcDirty){ if(!(await put('service', toCSV(S_COLS, RAW.s, '\r\n')))) return false; svcDirty = false; }
+  return true;
+}
 async function persist(){
+  if(PKM){ const ok = await persistPkm(); await Store.set('log', LOG); await Store.set('meta', APPMETA); return ok; }
   const a = await Store.set('e', E.map(eToRec)), b = await Store.set('log', LOG), c = await Store.set('meta', APPMETA);
   return a && b && c;
 }
-async function applyEingabe(d){
+async function reloadFromDisk(){
+  const pk = await readPkm();
+  RAW.s = pk.service; RAW.p = pk.wartungsplan;
+  const rows = pk.eintraege.map(r => mapE({...BLANK, ...r}));
+  E.length = 0; rows.forEach(x => E.push(x));
+  Object.keys(byId).forEach(k => delete byId[k]); E.forEach(x => { byId[x.id] = x; });
+  LOG.length = 0; svcDirty = false; await Store.set('log', LOG);
+  refresh();
+}
+function pkmNote(msg){ PKM.note = msg; updateNotice(); setTimeout(() => { if(PKM.note === msg){ PKM.note = ''; updateNotice(); } }, 20000); }
+async function checkExternal(){
+  if(!PKM || saving || document.hidden) return;
+  try{
+    const r = await fetch('api/status', {cache: 'no-store'}); const j = await r.json(); const f = j.files || {};
+    PKM.offline = false;
+    if(['eintraege', 'service', 'wartungsplan'].some(n => (f[n] && f[n].exists ? f[n].etag : 'none') !== (PKM.etag[n] || 'none')) && !saving){
+      await reloadFromDisk(); pkmNote('Die Dateien im PKM wurden geändert (z. B. durch den Abgleich) und neu geladen.');
+    }
+  }catch(err){ PKM.offline = true; }
+  updateNotice();
+}
+async function applyEingabe(d){ saving++; try{ return await applyEingabeInner(d); } finally{ saving--; } }
+async function applyEingabeInner(d){
   const docId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   const entry = {id: docId, data: d, erstellt: d.erstellt || new Date().toISOString(), undo: null, target: ''};
   if(d.aktion === 'neu'){
     if(!d.fahrzeug || !String(d.titel || '').trim()) throw new Error('Fahrzeug und Titel fehlen.');
     const x = newRow(d, nextId(), docId); E.push(x); byId[x.id] = x; entry.undo = {remove: x.id}; entry.target = x.id;
-    const sv = serviceRow(x); if(sv){ RAW.s.push(sv); entry.svc = sv; await Store.set('s', RAW.s); }
+    const sv = serviceRow(x); if(sv){ RAW.s.push(sv); entry.svc = sv; svcDirty = true; if(!PKM) await Store.set('s', RAW.s); }
   } else {
     const x = byId[d.ref]; if(!x) throw new Error('Eintrag nicht gefunden.');
     entry.undo = {restore: clone(x)}; entry.target = x.id;
@@ -1017,15 +1069,23 @@ async function applyEingabe(d){
     }
   }
   LOG.push(entry); if(LOG.length > 300) LOG.splice(0, LOG.length - 300);
-  APPMETA.dirty = true;
+  if(!PKM) APPMETA.dirty = true;
   const saved = await persist();
-  if(!saved && Store.ok){ rollback(entry); LOG.pop(); throw new Error('Speichern im Browser ist fehlgeschlagen.'); }
+  if(!saved && (Store.ok || PKM)){
+    rollback(entry); LOG.pop();
+    if(PKM && pkmErr === 'conflict'){ await reloadFromDisk(); throw new Error('Die Datei im PKM wurde zwischenzeitlich geändert (z. B. durch den Abgleich). Ich habe sie neu geladen. Bitte die Eingabe wiederholen.'); }
+    throw new Error(PKM ? pkmErr : 'Speichern im Browser ist fehlgeschlagen.');
+  }
   refresh();
   return {id: entry.id};
 }
-async function undoEingabe(id){
+async function undoEingabe(id){ saving++; try{ await undoInner(id); } finally{ saving--; } }
+async function undoInner(id){
   const i = LOG.findIndex(l => l.id === id); if(i < 0) return;
-  rollback(LOG[i]); LOG.splice(i, 1); await persist(); refresh();
+  rollback(LOG[i]); LOG.splice(i, 1);
+  const ok = await persist();
+  if(!ok && PKM){ await reloadFromDisk(); pkmNote(pkmErr === 'conflict' ? 'Die Datei im PKM wurde zwischenzeitlich geändert. Neu geladen, bitte „zurücknehmen“ nicht wiederholen, sondern den Eintrag prüfen.' : pkmErr); return; }
+  refresh();
 }
 const DB = {
   collection(name){ return {add: d => name === 'eingaben' ? applyEingabe(d) : Promise.reject(new Error('Unbekannte Sammlung'))}; },
@@ -1049,11 +1109,18 @@ function refresh(){
   R[tab](); setCounts(); updateNotice();
 }
 function setStamp(){
-  $('#stamp').innerHTML = `Heute ${dstr(todayIso())}<br>${E.length.toLocaleString('de-DE')} Einträge · lokal in diesem Browser`;
+  $('#stamp').innerHTML = `Heute ${dstr(todayIso())}<br>${E.length.toLocaleString('de-DE')} Einträge · ` + (PKM ? 'PKM-Ordner Youngtimer/Daten' : 'lokal in diesem Browser');
 }
 function updateNotice(){
   const el = $('#notice'); if(!el) return; const m = [];
   const go = '<a href="#" data-goto="daten">Daten</a>';
+  if(PKM){
+    if(PKM.offline) m.push(['bad', '<b>Hilfsprogramm nicht erreichbar.</b> Änderungen können gerade nicht gespeichert werden. Läuft das Terminal-Fenster „Zündfunke“ noch?']);
+    if(PKM.note) m.push(['warn', esc(PKM.note)]);
+    if(!E.length) m.push(['warn', '<b>Keine Einträge</b> in Daten/eintraege.csv gefunden.']);
+    el.innerHTML = m.map(([c, h]) => `<div class="alert ${c === 'warn' ? 'warn' : ''}"><div>${h}</div></div>`).join('');
+    return;
+  }
   if(!E.length) m.push(['bad', `<b>Noch keine Daten.</b> Importiere deine CSV-Dateien im Menü ${go}.`]);
   else {
     if(!Store.ok) m.push(['bad', `<b>Speicher nicht verfügbar.</b> Änderungen gehen beim Schließen verloren. Sichere sie im Menü ${go}.`]);
@@ -1105,7 +1172,8 @@ async function stageFiles(files){
     const quellen = new Set(eRows.map(r => r.quelle).filter(Boolean));
     s.lost = s.backup ? [] : E.filter(x => String(x.quelle || '').startsWith('app:') && !uniq.has(x.id) && !quellen.has(x.quelle));
   }
-  if(!Store.ok){ s.blockers = (s.blockers || []).concat(['Der Browser-Speicher ist nicht verfügbar']); }
+  if(PKM && (s.e || s.s || s.p || s.backup)) s.blockers = (s.blockers || []).concat(['Im PKM-Modus kommen die CSV-Daten aus dem Ordner Daten/. Hier kann nur wissen.json geladen werden']);
+  if(!Store.ok && !PKM){ s.blockers = (s.blockers || []).concat(['Der Browser-Speicher ist nicht verfügbar']); }
   staged = s;
 }
 async function commitStaged(){
@@ -1161,6 +1229,7 @@ function renderData(){
         if(k === 'eintraege' || k === 'backup'){ await markBackup(); renderData(); }
         return;
       }
+      if(e.target.closest('[data-dreload]')){ await reloadFromDisk(); renderData(); return; }
       if(e.target.closest('[data-dimp-ok]')){ await commitStaged(); return; }
       if(e.target.closest('[data-dimp-cancel]')){ staged = null; renderData(); return; }
       if(e.target.closest('[data-dpersist]')){ try{ await navigator.storage.persist(); }catch(err){} renderData(); }
@@ -1176,17 +1245,22 @@ function renderData(){
   const nW = Object.keys(WISSEN).length;
   const focus = document.activeElement && document.activeElement.id;
   box.innerHTML = `
+    ${PKM ? `<div class="panel" style="margin-bottom:16px"><h2>PKM-Anbindung</h2>
+      <p class="small muted" style="margin-top:0">Die Daten liegen im PKM-Ordner und werden bei jeder Änderung dort gespeichert:<br><b>${esc(PKM.dir)}</b></p>
+      <div class="list">${['eintraege', 'service', 'wartungsplan'].map(n => `<div class="item"><div class="d"></div><div class="t">${n}.csv<div class="meta"><span>${PKM.text[n] ? nf(PKM.text[n].length) + ' Zeichen' : 'Datei fehlt'}</span></div></div><div class="b"></div></div>`).join('')}</div>
+      <div style="margin-top:10px"><button class="btn ghost" data-dreload>Neu aus den Dateien laden</button></div></div>` : ''}
     <div class="panel"><h2>Bestand</h2>
       <div class="list">
         <div class="item"><div class="d"></div><div class="t">Journal<div class="meta"><span>${nf(E.length)} Einträge, davon ${nf(nApp)} in der App erfasst</span></div></div><div class="b"></div></div>
         <div class="item"><div class="d"></div><div class="t">Service-Nachweis und Wartungsplan<div class="meta"><span>${nf(RAW.s.length)} Nachweise · ${nf(RAW.p.length)} Intervalle</span></div></div><div class="b"></div></div>
         <div class="item"><div class="d"></div><div class="t">Wissen<div class="meta"><span>${nW ? 'geladen: ' + Object.keys(WISSEN).join(', ') : 'nicht geladen (optional)'}</span></div></div><div class="b"></div></div>
         <div class="item"><div class="d"></div><div class="t">Zuletzt importiert<div class="meta"><span>${esc(im)}</span></div></div><div class="b"></div></div>
-        <div class="item"><div class="d"></div><div class="t">Letztes Backup<div class="meta"><span>${esc(lb)}</span>${APPMETA.dirty ? '<span class="pill warn">ungesicherte Änderungen</span>' : ''}</div></div><div class="b"></div></div>
-        <div class="item"><div class="d"></div><div class="t">Browser-Speicher<div class="meta"><span id="persist-state">${Store.ok ? 'verfügbar' : 'nicht verfügbar'}</span></div></div><div class="b"><button class="btn ghost" data-dpersist>Dauerhaft anfordern</button></div></div>
+        ${PKM ? '' : `<div class="item"><div class="d"></div><div class="t">Letztes Backup<div class="meta"><span>${esc(lb)}</span>${APPMETA.dirty ? '<span class="pill warn">ungesicherte Änderungen</span>' : ''}</div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Browser-Speicher<div class="meta"><span id="persist-state">${Store.ok ? 'verfügbar' : 'nicht verfügbar'}</span></div></div><div class="b"><button class="btn ghost" data-dpersist>Dauerhaft anfordern</button></div></div>`}
       </div></div>
     <div class="panel" style="margin-top:16px"><h2>Daten importieren</h2>
-      <p class="small muted" style="margin-top:0">Wähle eine oder mehrere Dateien: <b>eintraege.csv</b> (Journal), <b>service.csv</b>, <b>wartungsplan.csv</b>, optional <b>wissen.json</b> oder ein Backup (<b>zuendfunke-backup-….json</b>). Die Dateien werden an Spalten erkannt, nicht am Namen. Nichts verlässt dein Gerät.</p>
+      ${PKM ? '<p class="small muted" style="margin-top:0">Im PKM-Modus kommen Journal, Service-Nachweis und Wartungsplan aus dem Ordner Daten/. Hier lässt sich nur <b>wissen.json</b> laden.</p>' : ''}
+      <p class="small muted" style="margin-top:0${PKM ? ';display:none' : ''}">Wähle eine oder mehrere Dateien: <b>eintraege.csv</b> (Journal), <b>service.csv</b>, <b>wartungsplan.csv</b>, optional <b>wissen.json</b> oder ein Backup (<b>zuendfunke-backup-….json</b>). Die Dateien werden an Spalten erkannt, nicht am Namen. Nichts verlässt dein Gerät.</p>
       <input type="file" id="imp-files" multiple accept=".csv,.json,text/csv,application/json">
       ${stagedHtml()}</div>
     <div class="panel" style="margin-top:16px"><h2>Exportieren und sichern</h2>
@@ -1197,7 +1271,7 @@ function renderData(){
         <button class="btn ghost" data-dexp="service">Service-CSV</button>
         <button class="btn ghost" data-dexp="plan">Wartungsplan-CSV</button>
       </div></div>
-    <div class="note-box" style="margin-top:16px">Die App arbeitet eigenständig: Sie ist die Quelle der Wahrheit für die hier gespeicherten Daten. Neue Einträge tragen eine ID mit <b>A</b> (A1, A2 …) und die Quelle <b>app:…</b>. Wartungen mit km-Stand schreibt sie zusätzlich in den Service-Nachweis. Die exportierten CSV-Dateien haben das Format der bisherigen Dateien und können diese direkt ersetzen.</div>`;
+    <div class="note-box" style="margin-top:16px">Die App arbeitet eigenständig: Sie ist die Quelle der Wahrheit für die Daten. Neue Einträge tragen eine ID mit <b>A</b> (A1, A2 …) und die Quelle <b>app:…</b>. Wartungen mit km-Stand schreibt sie zusätzlich in den Service-Nachweis. Die exportierten CSV-Dateien haben das Format der bisherigen Dateien und können diese direkt ersetzen.</div>`;
   if(focus){ const f = document.getElementById(focus); if(f && f.focus) try{ f.focus(); }catch(err){} }
   try{ if(navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(p => { const el = $('#persist-state'); if(el && Store.ok) el.textContent = p ? 'verfügbar, dauerhaft' : 'verfügbar, nicht dauerhaft gesichert'; }); }catch(err){}
 }
@@ -1460,12 +1534,9 @@ try{ const t = localStorage.getItem('gb-tab'); if(t && R[t]) tab = t; }catch(e){
 if(!E.length) tab = 'daten';
 renderVeh(); show(tab); setCounts(); if(tab!=='anstehend') { const n = carsV().flatMap(c=>DUE[c]).filter(d=>d.st==='bad'||d.st==='warn').length + termine().length; $('#cnt-an').textContent = n || ''; }
 
+if(PKM){ window.addEventListener('focus', checkExternal); document.addEventListener('visibilitychange', checkExternal); setInterval(checkExternal, 20000); }
+else if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){ navigator.serviceWorker.register('sw.js').catch(() => {}); }
 updateNotice();
 })();
-</script>
-<script>
-if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
-  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
-}
 </script>
 </body></html>
