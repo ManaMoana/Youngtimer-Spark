@@ -1,0 +1,1471 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Zündfunke T4 &amp; TT</title>
+<meta name="description" content="Zündfunke: Stammbuch für Youngtimer. Statische Web-App, alle Daten bleiben lokal im Browser.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zündfunke">
+<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<style>
+:root{
+  --ground:#eceeec; --panel:#f8f9f7; --panel-2:#e2e5e2; --line:#cfd4cf; --ink:#1b2124; --ink-2:#4b5559; --ink-3:#6f797c;
+  --t4:#1f5f8b; --t4-soft:#dbe7f0; --tt:#8a5a32; --tt-soft:#f0e5da; --ws:#55606a; --ws-soft:#e3e7ea;
+  --accent:#1f5f8b; --focus:#1f5f8b;
+  --bad:#b3322a; --bad-soft:#f6dedb; --warn:#9a6a00; --warn-soft:#f6ecd2; --good:#2c7152; --good-soft:#dcefe4; --na:#6f797c; --na-soft:#e5e8e6;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --odo:#16191b; --odo-ink:#f3f1ea; --odo-last:#c7412f;
+  --shadow:0 1px 0 rgba(20,30,30,.06),0 1px 3px rgba(20,30,30,.06);
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --ground:#151a1c; --panel:#1d2427; --panel-2:#263034; --line:#34403f; --ink:#eef1ef; --ink-2:#b9c2c3; --ink-3:#8e999b;
+    --t4:#7fb3dc; --t4-soft:#1f3342; --tt:#d7a676; --tt-soft:#3a2c20; --ws:#aab4bc; --ws-soft:#2a3136; --accent:#7fb3dc; --focus:#7fb3dc;
+    --bad:#ef8a80; --bad-soft:#3d2220; --warn:#e3b44f; --warn-soft:#382f18; --good:#74c79f; --good-soft:#1b3328; --na:#8e999b; --na-soft:#262e30;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+    --odo:#0b0d0e; --odo-ink:#f3f1ea; --odo-last:#e0574a; --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+    color-scheme:dark;
+    --ground:#151a1c; --panel:#1d2427; --panel-2:#263034; --line:#34403f; --ink:#eef1ef; --ink-2:#b9c2c3; --ink-3:#8e999b;
+    --t4:#7fb3dc; --t4-soft:#1f3342; --tt:#d7a676; --tt-soft:#3a2c20; --ws:#aab4bc; --ws-soft:#2a3136; --accent:#7fb3dc; --focus:#7fb3dc;
+    --bad:#ef8a80; --bad-soft:#3d2220; --warn:#e3b44f; --warn-soft:#382f18; --good:#74c79f; --good-soft:#1b3328; --na:#8e999b; --na-soft:#262e30;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300;
+    --odo:#0b0d0e; --odo-ink:#f3f1ea; --odo-last:#e0574a; --shadow:none;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font:16px/1.5 var(--body);margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:16px;padding-block:20px 60px}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:.01em;text-wrap:balance;margin:0}
+h1{font-size:2.1rem;line-height:1.05}
+h2{font-size:1.5rem;margin-bottom:10px}
+h3{font-size:1.15rem}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-3)} .small{font-size:.86rem}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:14px}
+header.top .sub{color:var(--ink-2);font-size:.95rem}
+.stamp{font-size:.82rem;color:var(--ink-3);text-align:right}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);margin-bottom:18px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--ground);z-index:5}
+nav.tabs button{font:600 1.02rem var(--display);letter-spacing:.04em;text-transform:uppercase;background:none;border:0;color:var(--ink-2);padding:10px 12px 8px;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+nav.tabs button .cnt:empty{display:none}
+nav.tabs button .cnt{font:500 .72rem var(--mono);background:var(--panel-2);border-radius:9px;padding:1px 6px;margin-left:5px;vertical-align:2px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;box-shadow:var(--shadow)}
+.car{border-top:4px solid var(--c)}
+.car.T4{--c:var(--t4);--cs:var(--t4-soft)} .car.TT{--c:var(--tt);--cs:var(--tt-soft)}
+.carhead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.carhead .model{color:var(--ink-3);font-size:.9rem}
+.tag{display:inline-block;font:600 .78rem var(--display);letter-spacing:.06em;text-transform:uppercase;padding:1px 7px;border-radius:3px;background:var(--cs,var(--panel-2));color:var(--c,var(--ink-2))}
+.tag.T4{--c:var(--t4);--cs:var(--t4-soft)} .tag.TT{--c:var(--tt);--cs:var(--tt-soft)} .tag.WERKSTATT{--c:var(--ws);--cs:var(--ws-soft)}
+.odo{display:inline-flex;gap:3px;background:var(--odo);padding:5px;border-radius:4px;margin:12px 0 4px}
+.odo span{display:inline-block;width:1.45em;text-align:center;font:600 1.9rem/1.25 var(--mono);color:var(--odo-ink);background:linear-gradient(#2a2f31,#101314 45%,#101314 55%,#2a2f31);border-radius:2px}
+.odo span.last{background:linear-gradient(#e46a5c,var(--odo-last) 45%,var(--odo-last) 55%,#e46a5c)}
+.odo-cap{font-size:.84rem;color:var(--ink-3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px 18px;margin:14px 0}
+.stat .v{font:600 1.45rem/1.1 var(--display);font-variant-numeric:tabular-nums}
+.stat .l{font-size:.8rem;color:var(--ink-3);letter-spacing:.02em}
+.due{display:grid;gap:6px;margin-top:6px}
+.dueline{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid var(--line)}
+.pill{display:inline-flex;align-items:center;gap:5px;font:600 .78rem var(--display);letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.good{background:var(--good-soft);color:var(--good)} .pill.na{background:var(--na-soft);color:var(--na)}
+.alert{display:flex;gap:12px;align-items:flex-start;border-left:4px solid var(--bad);background:var(--bad-soft);padding:10px 14px;border-radius:0 6px 6px 0;margin-bottom:14px}
+.alert.warn{border-color:var(--warn);background:var(--warn-soft)}
+.alert b{font-family:var(--display);font-size:1.1rem;letter-spacing:.02em}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th{font:600 .8rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:6px 8px;border-bottom:2px solid var(--line);white-space:nowrap}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.seg button{background:var(--panel);border:0;padding:5px 11px;cursor:pointer;font-size:.9rem;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel)}
+input[type=search],input[type=text],input[type=number],input[type=date],select,textarea{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:7px 10px;min-width:0}
+input[type=search]{flex:1 1 240px}
+.list{display:grid;gap:0}
+.item{display:grid;grid-template-columns:92px 1fr auto;gap:4px 12px;padding:9px 4px;border-bottom:1px solid var(--line);align-items:baseline}
+.item .d{font:500 .82rem var(--mono);color:var(--ink-3)}
+.item .t{min-width:0}
+.item .t .meta{font-size:.82rem;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:2px}
+.item .b{font:500 .92rem var(--mono);text-align:right;white-space:nowrap}
+.item.child{padding-left:22px;background:linear-gradient(90deg,var(--panel-2) 3px,transparent 3px) 10px 0/100% 100% no-repeat}
+.item details{grid-column:2/4}
+details summary{cursor:pointer;color:var(--accent);font-size:.84rem;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details .note{white-space:pre-wrap;font-size:.88rem;color:var(--ink-2);background:var(--panel-2);padding:8px 10px;border-radius:4px;margin-top:4px}
+.monthhead{font:600 .95rem var(--display);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding:14px 4px 4px;border-bottom:2px solid var(--line);display:flex;justify-content:space-between}
+.btn{background:var(--ink);color:var(--panel);border:0;border-radius:5px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);padding:3px 9px;font-size:.84rem;font-weight:600}
+.btn:disabled{opacity:.5;cursor:default}
+.chart{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.88rem;color:var(--ink-2);margin:6px 0 4px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--panel);font-size:.84rem;padding:7px 10px;border-radius:5px;z-index:20;max-width:260px}
+.tip .num{color:inherit}
+form.entry{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+form.entry label{display:grid;gap:3px;font-size:.84rem;color:var(--ink-2)}
+form.entry .wide{grid-column:1/-1}
+.note-box{border:1px dashed var(--line);border-radius:6px;padding:10px 14px;font-size:.9rem;color:var(--ink-2);background:var(--panel)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.bars{display:grid;gap:6px}
+.hbar{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:10px;align-items:center;font-size:.9rem}
+.hbar .track{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden;margin-top:3px}
+.hbar .fill{height:100%;background:var(--ink-2);border-radius:4px}
+.loc{margin-bottom:16px}
+.zbar{display:flex;height:12px;border-radius:3px;overflow:hidden;gap:2px;background:var(--panel);margin:6px 0 6px}
+.zbar i{display:block;height:100%}
+.zleg{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:.8rem;color:var(--ink-2)}
+.zleg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+.zleg .num{color:var(--ink)}
+.rv{display:grid;grid-template-columns:92px minmax(0,1fr) auto auto;gap:6px 12px;align-items:center;padding:8px 4px;border-bottom:1px solid var(--line)}
+.rv select{padding:4px 6px}
+@media (max-width:560px){.rv{grid-template-columns:1fr auto}.rv .d{grid-column:1/-1}}
+.loc h3{display:flex;justify-content:space-between;border-bottom:2px solid var(--line);padding-bottom:3px;margin-bottom:4px}
+.empty{padding:18px;text-align:center;color:var(--ink-3)}
+section[hidden]{display:none!important}
+@media (max-width:560px){.item{grid-template-columns:1fr auto}.item .d{grid-column:1/-1}.item details{grid-column:1/-1}.odo span{font-size:1.5rem}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* --- iPhone-Optimierung (Stufe 1: grosse Schaltflaechen, Erfassen & Anstehend zuerst, Vollbild ab Home-Bildschirm) --- */
+@media (max-width:640px){
+  .wrap{padding-block:20px calc(78px + env(safe-area-inset-bottom,0px))}
+  header.top{margin-bottom:10px}
+  h1{font-size:1.7rem}
+  header.top .sub{font-size:.85rem}
+  .stamp{font-size:.74rem}
+  nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;margin-bottom:0;border-bottom:0;border-top:1px solid var(--line);background:var(--panel);box-shadow:0 -2px 10px rgba(0,0,0,.10);padding-bottom:env(safe-area-inset-bottom,0px);overflow-x:visible;z-index:50}
+  nav.tabs button{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:3px;padding:13px 2px;min-height:56px;font-size:.78rem;letter-spacing:.01em;border-bottom:0;border-top:3px solid transparent;white-space:normal;line-height:1.15}
+  nav.tabs button[aria-selected="true"]{border-top-color:var(--accent);border-bottom-color:transparent;background:var(--panel-2)}
+  nav.tabs button .cnt{font-size:.62rem;padding:0 5px;margin-left:2px}
+  .btn{min-height:48px;padding:13px 20px;font-size:1rem}
+  .btn.ghost{min-height:40px;padding:9px 14px;font-size:.9rem}
+  .seg button{min-height:40px;padding:10px 14px;font-size:.92rem}
+  input[type=search],input[type=text],input[type=number],input[type=date],select,textarea{padding:12px 12px}
+  form.entry #f-save{width:100%}
+}
+
+/* =====================================================================
+   iOS-Redesign, Runde 1 (Navigation + Ueberblick-Tab, "Muster")
+   Wirkt ueber CSS-Custom-Properties global (Farben/Schrift ueberall),
+   Layout-Feinschliff hier gezielt fuer Nav + Ueberblick. Kosten/Chronik/
+   Lager/Erfassen folgen in Runde 2. Kein JS/Daten angefasst.
+   ===================================================================== */
+:root{
+  --ground:#F2F2F7; --panel:#FFFFFF; --panel-2:#EFEFF4; --line:#E3E3E8; --ink:#000000; --ink-2:#6C6C70; --ink-3:#8E8E93;
+  --t4:#1f5f8b; --t4-soft:#E4EEF5; --tt:#8a5a32; --tt-soft:#F3E9DC; --ws:#55606a; --ws-soft:#E7E9EC;
+  --accent:#007AFF; --focus:#007AFF;
+  --bad:#FF3B30; --bad-soft:#FFEBE9; --warn:#FF9500; --warn-soft:#FFF3E0; --good:#34C759; --good-soft:#E8F9EC; --na:#8E8E93; --na-soft:#F2F2F7;
+  --s1:#007AFF; --s2:#FF9500; --s3:#34C759; --s4:#AF52DE; --s5:#FF2D55; --s6:#5AC8FA;
+  --shadow:0 1px 2px rgba(0,0,0,.05);
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --mono:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#000000; --panel:#1C1C1E; --panel-2:#2C2C2E; --line:#38383A; --ink:#FFFFFF; --ink-2:#98989D; --ink-3:#8E8E93;
+    --t4:#7fb3dc; --t4-soft:#1f3342; --tt:#d7a676; --tt-soft:#3a2c20; --ws:#aab4bc; --ws-soft:#2a3136;
+    --accent:#0A84FF; --focus:#0A84FF;
+    --bad:#FF453A; --bad-soft:#3A1E1C; --warn:#FF9F0A; --warn-soft:#3D2E12; --good:#30D158; --good-soft:#17301F; --na:#8E8E93; --na-soft:#242424;
+    --s1:#0A84FF; --s2:#FF9F0A; --s3:#30D158; --s4:#BF5AF2; --s5:#FF375F; --s6:#64D2FF;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+    --ground:#000000; --panel:#1C1C1E; --panel-2:#2C2C2E; --line:#38383A; --ink:#FFFFFF; --ink-2:#98989D; --ink-3:#8E8E93;
+    --t4:#7fb3dc; --t4-soft:#1f3342; --tt:#d7a676; --tt-soft:#3a2c20; --ws:#aab4bc; --ws-soft:#2a3136;
+    --accent:#0A84FF; --focus:#0A84FF;
+    --bad:#FF453A; --bad-soft:#3A1E1C; --warn:#FF9F0A; --warn-soft:#3D2E12; --good:#30D158; --good-soft:#17301F; --na:#8E8E93; --na-soft:#242424;
+    --s1:#0A84FF; --s2:#FF9F0A; --s3:#30D158; --s4:#BF5AF2; --s5:#FF375F; --s6:#64D2FF;
+    --shadow:none;
+}
+h1{font-weight:700;letter-spacing:-0.02em}
+h2{font-weight:700;letter-spacing:-0.01em;font-size:1.22rem}
+h3{font-weight:600;letter-spacing:0;font-size:1.02rem}
+header.top{align-items:flex-start;margin-bottom:18px}
+header.top .sub{color:var(--ink-3);font-size:.92rem;margin-top:2px;font-weight:500}
+.stamp{color:var(--ink-3);font-weight:500}
+
+/* Navigation: Desktop/Tablet = Segmented-Control-Picker */
+nav.tabs{display:flex;gap:2px;overflow-x:visible;background:var(--panel-2);padding:4px;border-radius:12px;margin:0 0 20px;border:0;box-shadow:none;position:sticky;top:8px}
+nav.tabs button{flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 10px;border-radius:9px;font:600 .92rem var(--body);letter-spacing:0;text-transform:none;color:var(--ink-2);background:transparent;border:0;margin:0;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.12);border:0}
+nav.tabs button .tabicon{position:relative;display:inline-flex;width:18px;height:18px;flex:none}
+nav.tabs button .tabicon svg{width:100%;height:100%;display:block}
+nav.tabs button .tablabel{line-height:1}
+nav.tabs button .tabicon .cnt{position:absolute;top:-6px;right:-8px;min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:var(--bad);color:#fff;font:700 10px var(--body);display:flex;align-items:center;justify-content:center;line-height:1;margin:0}
+nav.tabs button .tabicon .cnt:empty{display:none}
+
+@media (max-width:640px){
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;top:auto;display:flex;gap:0;background:var(--panel);padding:6px 4px calc(4px + env(safe-area-inset-bottom,0px));border-radius:0;border-top:.5px solid var(--line);box-shadow:0 -1px 12px rgba(0,0,0,.08);margin:0;z-index:50}
+  nav.tabs button{flex-direction:column;gap:3px;padding:5px 2px;border-radius:10px;font-size:.64rem;font-weight:600;min-height:0;border:0}
+  nav.tabs button[aria-selected="true"]{background:transparent;color:var(--accent);box-shadow:none;border:0}
+  nav.tabs button .tabicon{width:24px;height:24px}
+  .btn{padding:13px 20px;font-size:1rem;border-radius:12px}
+  .btn.ghost{padding:8px 4px;font-size:.9rem}
+  .seg button{padding:10px 14px;font-size:.92rem}
+}
+
+/* Karten & Bausteine im Grouped-List-Stil */
+.panel{border:0;border-radius:16px;box-shadow:var(--shadow)}
+.car{border-top:0}
+.carhead{align-items:center}
+.tag{display:inline-flex;align-items:center;font:700 .72rem var(--body);letter-spacing:0;text-transform:none;padding:3px 9px;border-radius:20px}
+
+.odo{display:inline-flex;gap:0;background:transparent;padding:0;margin:10px 0 2px;border-radius:0}
+.odo span{display:inline-block;width:auto;text-align:left;font:700 2.5rem/1.1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);background:none;border-radius:0}
+.odo span.last{background:none;color:var(--accent)}
+
+.stat .v{font:700 1.65rem/1.15 var(--body);font-variant-numeric:tabular-nums;letter-spacing:-0.01em}
+.stat .l{font-size:.78rem;color:var(--ink-3);letter-spacing:0;font-weight:500}
+
+.alert{border-left:0;border-radius:14px;padding:12px 14px;gap:10px}
+.alert b{font-family:var(--body);font-weight:700;font-size:1rem;letter-spacing:0}
+
+.pill{font:700 .72rem var(--body);letter-spacing:0;text-transform:none;padding:3px 9px 3px 7px;border-radius:20px}
+
+.item{border-bottom:.5px solid var(--line);align-items:center}
+.item .d{font:500 .78rem var(--body);font-variant-numeric:tabular-nums}
+.item .b{font:600 .95rem var(--body);font-variant-numeric:tabular-nums}
+
+.dueline{border-top:.5px solid var(--line)}
+
+.btn{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:10px 16px;font:600 .95rem var(--body);letter-spacing:0}
+.btn.ghost{background:transparent;color:var(--accent);border:0;padding:4px 2px;font:600 .86rem var(--body)}
+.btn:disabled{opacity:.4}
+
+.seg{border:0;border-radius:9px;background:var(--panel-2);padding:2px;overflow:hidden}
+.seg button{background:transparent;border-radius:7px;padding:6px 12px;font:600 .85rem var(--body);color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+
+.zbar{border-radius:6px}
+.zleg i,.legend i{border-radius:4px}
+
+/* =====================================================================
+   iOS-Redesign, Runde 2: Anstehend, Kosten, Chronik, Lager, Erfassen
+   Wieder rein optisch (CSS + 2 Schriftart-Strings im Kosten-Diagramm
+   oben). Kein Rechenwert, keine Feldnamen, keine Datenstruktur veraendert.
+   ===================================================================== */
+input[type=search],input[type=text],input[type=number],input[type=date],select,textarea{
+  background:var(--panel-2);border:0;border-radius:10px;padding:9px 12px;color:var(--ink)
+}
+select{
+  -webkit-appearance:none;appearance:none;padding-right:30px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M5.5 8l4.5 4.5L14.5 8' fill='none' stroke='%238E8E93' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat:no-repeat;background-position:right 9px center;background-size:14px
+}
+input[type=search]::placeholder,input[type=text]::placeholder{color:var(--ink-3)}
+
+.tbl-wrap table{border-collapse:separate;border-spacing:0}
+th{font:600 .72rem var(--body);letter-spacing:.04em;border-bottom:.5px solid var(--line);color:var(--ink-3)}
+td{padding:9px 8px;border-bottom:.5px solid var(--line)}
+
+.monthhead{font:600 .8rem var(--body);letter-spacing:.04em;border-bottom:0;color:var(--ink-3);padding-top:18px}
+
+.rv{border-bottom:.5px solid var(--line);padding:10px 4px}
+.rv select{padding:6px 26px 6px 10px;font-size:.85rem}
+
+.note-box{border:0;border-radius:14px;background:var(--panel-2);color:var(--ink-2)}
+
+.hbar .track{background:var(--panel-2);border-radius:99px}
+.hbar .fill{border-radius:99px}
+
+.loc h3{border-bottom:.5px solid var(--line);padding-bottom:6px;margin-bottom:6px}
+
+form.entry label{color:var(--ink-3);font-weight:500}
+
+.kpis .panel.stat{padding:14px 16px}
+
+.chart text{font-variant-numeric:tabular-nums}
+
+/* --- Lager: Kategorien --- */
+.lfilters{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:10px}
+.lfilters .lsearch{grid-column:1/-1}
+.lfilters select{width:100%}
+.lbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:8px}
+.chip{background:var(--panel-2);border:0;border-radius:99px;padding:6px 12px;font:600 .82rem var(--body);color:var(--ink-2);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--warn-soft);color:var(--warn)}
+.chip:disabled{opacity:.45;cursor:default}
+.lgrp{margin-bottom:16px}
+.lgrp>h3{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:.5px solid var(--line);padding-bottom:6px;margin-bottom:2px}
+.lsub{font:600 .74rem var(--body);letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:12px 2px 2px;display:flex;justify-content:space-between}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,260px);gap:6px 14px;align-items:center;padding:9px 2px;border-bottom:.5px solid var(--line)}
+.lrow .lt{min-width:0;overflow-wrap:anywhere}
+.lrow .lm{font-size:.8rem;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:2px 10px;align-items:center;margin-top:2px}
+.lrow .lk{display:flex;flex-direction:column;align-items:stretch;gap:5px;min-width:0}
+.lrow select{width:100%;padding:7px 28px 7px 10px;font-size:.86rem;text-overflow:ellipsis}
+.lrow .lktext{font-size:.84rem;color:var(--ink-2)}
+.lrow .pill{align-self:flex-start}
+@media (max-width:560px){.lrow{grid-template-columns:1fr}.lfilters{grid-template-columns:1fr}}
+
+/* =====================================================================
+   Layout v2: Seitenleiste links, Fahrzeugwahl oben, Menü darunter
+   Desktop: feste Spalte. Telefon: Fahrzeugleiste oben, Menü unten.
+   ===================================================================== */
+.app{display:grid;grid-template-columns:272px minmax(0,1fr);align-items:start;min-height:100vh}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+aside.side{position:sticky;top:env(safe-area-inset-top,0px);height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:22px;padding:22px 16px 24px;padding-left:max(16px,env(safe-area-inset-left,0px));background:var(--panel);border-right:.5px solid var(--line)}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font:700 1.45rem/1.1 var(--display);letter-spacing:-.02em}
+.brand span{font-size:.8rem;color:var(--ink-3);font-weight:500}
+.sidelabel{font:600 .72rem var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:0 4px 8px}
+.veh{display:grid;gap:8px}
+.veh button{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"t n" "t k";gap:1px 12px;align-items:center;text-align:left;background:var(--panel-2);border:2px solid transparent;border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink)}
+.veh button[aria-pressed="true"]{background:var(--panel);border-color:var(--vc);box-shadow:var(--shadow)}
+.veh .vt{grid-area:t;font:700 .85rem var(--body);color:var(--vc);min-width:2.6em}
+.veh .vn{grid-area:n;font:600 .9rem var(--body);line-height:1.2}
+.veh .vk{grid-area:k;font:500 .76rem var(--body);color:var(--ink-3);font-variant-numeric:tabular-nums}
+@media (min-width:641px){
+  aside.side nav.tabs{position:static;border:0;overflow:visible;display:flex;flex-direction:column;gap:2px;background:transparent;padding:0;margin:0;border-radius:0;box-shadow:none;top:auto}
+  aside.side nav.tabs button{justify-content:flex-start;gap:12px;padding:10px 12px;font-size:.95rem;border-radius:10px;width:100%;flex:none}
+  aside.side nav.tabs button:hover{background:var(--panel-2)}
+  aside.side nav.tabs button[aria-selected="true"]{background:var(--panel-2);color:var(--accent);box-shadow:none}
+  aside.side nav.tabs button .tabicon{width:20px;height:20px}
+  header.top h1{font-size:1.9rem}
+}
+@media (max-width:640px){
+  .app{display:block}
+  aside.side{display:contents}
+  .brand,.sidelabel{display:none}
+  .sg-veh{display:block;position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--ground);padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+  .sg-menu{display:contents}
+  .veh{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .veh button{grid-template-columns:1fr;grid-template-areas:"t" "k";justify-items:center;text-align:center;padding:8px 4px;gap:0}
+  .veh .vn{display:none}
+  .veh .vt{min-width:0;font-size:.95rem}
+  .veh .vk{font-size:.7rem}
+  nav.tabs{padding-left:max(4px,env(safe-area-inset-left,0px));padding-right:max(4px,env(safe-area-inset-right,0px))}
+  nav.tabs button{min-width:0}
+  nav.tabs button .tablabel{font-size:.58rem}
+  .wrap{padding-top:6px}
+  header.top .stamp{text-align:left}
+}
+
+/* --- Wissen --- */
+.wcar{margin-bottom:28px}
+.whead{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.whead h2{margin:0;display:flex;gap:10px;align-items:center}
+.wmeta{font-size:.84rem;color:var(--ink-3)}
+.wmeta a{color:var(--accent);text-decoration:none;font-weight:600}
+.wneu{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+.wneu span{font-size:.8rem;background:var(--warn-soft);color:var(--warn);border-radius:99px;padding:3px 10px;font-weight:600}
+.wcases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin-bottom:16px}
+.wcase h3{margin:0 0 8px;font-size:1.05rem}
+.wcase ul{margin:8px 0;padding-left:1.15rem;display:grid;gap:5px}
+.wcase li{overflow-wrap:anywhere}
+.wjline{display:grid;grid-template-columns:5.6rem minmax(0,1fr) auto;gap:4px 10px;align-items:baseline;padding:6px 0;border-bottom:.5px solid var(--line);font-size:.92rem}
+.wsub{font:600 .72rem var(--body);letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin:12px 0 4px}
+details.wk{background:var(--panel);border-radius:14px;margin-bottom:8px;box-shadow:var(--shadow)}
+details.wk>summary{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;cursor:pointer;list-style:none;padding:13px 16px;color:var(--ink);font-weight:600;font-size:1rem}
+details.wk>summary::-webkit-details-marker{display:none}
+details.wk>summary>span:first-child{flex:1 1 14rem;min-width:0}
+details.wk>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);margin:0 4px 3px 4px;flex:none}
+details.wk[open]>summary::after{transform:rotate(-135deg);margin-bottom:-3px}
+details.wk .wbody{padding:0 16px 14px;max-width:70ch}
+details.wk .wbody p{margin:0 0 8px}
+.wsrc{margin:0;padding-left:1.1rem;font-size:.84rem;color:var(--ink-3);display:grid;gap:2px}
+.wsrc li{overflow-wrap:anywhere}
+
+/* =====================================================================
+   Runde 3: Menüpunkte "Bestellung" und "Fragen" (Lotse)
+   ===================================================================== */
+@media (max-width:640px){
+  nav.tabs{overflow-x:auto;overflow-y:hidden;scrollbar-width:none;padding-top:10px}
+  nav.tabs::-webkit-scrollbar{display:none}
+  nav.tabs button{flex:0 0 auto;min-width:66px;padding-left:6px;padding-right:6px}
+  nav.tabs button .tablabel{white-space:nowrap}
+}
+.fr-form{display:grid;gap:12px}
+.fr-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:12px}
+.fr-form label{display:grid;gap:3px;font-size:.84rem;color:var(--ink-3);font-weight:500;min-width:0}
+.fr-form textarea{min-height:120px;resize:vertical}
+.fr-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fq{padding:14px 0;border-bottom:.5px solid var(--line);display:grid;gap:8px;min-width:0}
+.fq .meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:.82rem;color:var(--ink-3)}
+.fq .q{white-space:pre-wrap;overflow-wrap:anywhere}
+.fq .a{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--panel-2);border-radius:12px;padding:12px 14px;font-size:.93rem;max-width:74ch}
+.fq .save{display:grid;gap:10px;max-width:560px;margin-top:2px}
+.fq .save label{display:grid;gap:3px;font-size:.82rem;color:var(--ink-3);font-weight:500}
+.fq .warnline{font-size:.88rem;color:var(--warn)}
+.fq .badline{font-size:.88rem;color:var(--bad)}
+.dlv{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:10px;align-items:end;background:var(--panel-2);border-radius:12px;padding:12px;margin-top:6px}
+.dlv label{display:grid;gap:3px;font-size:.8rem;color:var(--ink-3);font-weight:500;min-width:0}
+.dlv select,.dlv input{background:var(--panel)}
+.sech{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:18px 0 2px}
+.sech h3{margin:0}
+
+/* --- Eigenständige App: Daten-Menü, Hinweise --- */
+#notice:empty{display:none}
+.alert a{color:var(--accent);font-weight:600}
+#daten input[type=file]{width:100%;background:var(--panel-2);border-radius:10px;padding:10px 12px}
+#daten .badline{color:var(--bad);margin-top:6px;font-size:.9rem}
+#daten .warnline{color:var(--warn);margin-top:6px;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side" aria-label="Navigation">
+  <div class="brand"><b>Zündfunke</b><span>Das Stammbuch für Youngtimer</span></div>
+  <div class="sidegrp sg-veh"><div class="sidelabel">Fahrzeug</div><div class="veh" id="veh" role="group" aria-label="Fahrzeug wählen"></div></div>
+  <div class="sidegrp sg-menu"><div class="sidelabel">Menü</div>
+<nav class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-tab="ueberblick" aria-selected="true"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15a8 8 0 1 1 16 0"/><path d="M12 15l3.5-4.5"/><circle cx="12" cy="15" r="1.1" fill="currentColor" stroke="none"/></svg></span><span class="tablabel">Überblick</span></button>
+  <button role="tab" data-tab="anstehend" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 1 1 12 0c0 3.2 1 4.6 1.6 5.4a.9.9 0 0 1-.7 1.4H5.1a.9.9 0 0 1-.7-1.4C5 14.6 6 13.2 6 10Z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><span class="cnt" id="cnt-an"></span></span><span class="tablabel">Anstehend</span></button>
+  <button role="tab" data-tab="kosten" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19V10"/><path d="M12 19V5"/><path d="M19 19v-6"/><path d="M3 19h18"/></svg><span class="cnt" id="cnt-ko"></span></span><span class="tablabel">Kosten</span></button>
+  <button role="tab" data-tab="chronik" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.5V12l3 2"/></svg></span><span class="tablabel">Chronik</span></button>
+  <button role="tab" data-tab="lager" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.2 12 4l8.5 4.2v7.6L12 20 3.5 15.8Z"/><path d="M3.5 8.2 12 12l8.5-3.8"/><path d="M12 12v8"/></svg></span><span class="tablabel">Lager</span></button>
+  <button role="tab" data-tab="bestellung" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="19" r="1.3"/><circle cx="17" cy="19" r="1.3"/><path d="M3.5 4.5h2l2 10h9.7l1.8-7.5H6.3"/></svg></span><span class="tablabel">Bestellung</span></button>
+  <button role="tab" data-tab="wissen" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5Z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5Z"/></svg></span><span class="tablabel">Wissen</span></button>
+  <button role="tab" data-tab="erfassen" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><path d="M12 8.3v7.4M8.3 12h7.4"/></svg><span class="cnt" id="cnt-in" hidden></span></span><span class="tablabel">Erfassen</span></button>
+
+  <button role="tab" data-tab="daten" aria-selected="false"><span class="tabicon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="2.6"/><path d="M5 6v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V6"/><path d="M5 12v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-6"/></svg></span><span class="tablabel">Daten</span></button>
+</nav></div>
+</aside>
+<main class="wrap">
+<header class="top">
+  <div>
+    <h1 id="pagetitle">Zündfunke</h1>
+    <div class="sub" id="pagesub">Das Stammbuch für Youngtimer</div>
+  </div>
+  <div class="stamp" id="stamp"></div>
+</header>
+
+<div id="notice"></div>
+<section id="ueberblick"></section>
+<section id="anstehend" hidden></section>
+<section id="kosten" hidden></section>
+<section id="chronik" hidden></section>
+<section id="lager" hidden></section>
+<section id="wissen" hidden></section>
+<section id="bestellung" hidden></section>
+<section id="erfassen" hidden></section>
+<section id="daten" hidden></section>
+</main>
+</div>
+<div class="tip" id="tip" hidden></div>
+<script>
+/* ---------- Speicher (IndexedDB) und CSV ---------- */
+const COLS = ['id','fahrzeug','datum','datum_abgeleitet','km','typ','status','prio','bereich','titel','betrag','kostenart','zweck','zweck_status','betrag_geplant','auf_lager','lagerort','box','fach','bestellt_am','notiz','eltern_id','quelle','kategorie','unterkategorie','kat_status','platz'];
+const S_COLS = ['fahrzeug','gruppe','aufgabe','km','datum','status','km_geschaetzt','notiz'];
+const P_COLS = ['fahrzeug','gruppe','aufgabe','intervall_km','intervall_jahre','anmerkung','notiz'];
+const BLANK = Object.fromEntries(COLS.map(c => [c, '']));
+
+function parseCSV(text){
+  if(text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const rows = []; let row = [], f = '', q = false;
+  for(let i = 0; i < text.length; i++){
+    const c = text[i];
+    if(q){
+      if(c === '"'){ if(text[i+1] === '"'){ f += '"'; i++; } else q = false; }
+      else f += c;
+    } else if(c === '"') q = true;
+    else if(c === ','){ row.push(f); f = ''; }
+    else if(c === '\n' || c === '\r'){ if(c === '\r' && text[i+1] === '\n') i++; row.push(f); f = ''; rows.push(row); row = []; }
+    else f += c;
+  }
+  if(f !== '' || row.length){ row.push(f); rows.push(row); }
+  const header = (rows.shift() || []).map(h => h.trim());
+  const out = rows.filter(r => r.length > 1 || (r[0] || '') !== '').map(r => { const o = {}; header.forEach((h, j) => { o[h] = r[j] === undefined ? '' : r[j]; }); return o; });
+  return {header, rows: out};
+}
+function csvField(v){
+  const s = v == null ? '' : String(v);
+  return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function toCSV(cols, rows, eol){
+  eol = eol || '\n';
+  return [cols.join(',')].concat(rows.map(r => cols.map(c => csvField(r[c])).join(','))).join(eol) + eol;
+}
+
+const Store = (() => {
+  let db = null, ok = false; const mem = {};
+  const open = () => new Promise(res => {
+    try{
+      const r = indexedDB.open('zuendfunke', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { db = r.result; ok = true; res(); };
+      r.onerror = () => res();
+      r.onblocked = () => res();
+    }catch(e){ res(); }
+  });
+  const get = k => new Promise(res => {
+    if(!db) return res(mem[k]);
+    try{ const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => res(undefined); }
+    catch(e){ res(mem[k]); }
+  });
+  const set = (k, v) => new Promise(res => {
+    mem[k] = v; if(!db) return res(false);
+    try{ const t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = () => res(true); t.onerror = () => res(false); t.onabort = () => res(false); }
+    catch(e){ res(false); }
+  });
+  return {open, get, set, get ok(){ return ok; }};
+})();
+
+</script>
+<script>
+(async function(){
+await Store.open();
+try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+const todayIso = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+const RAW = {meta:{stand:todayIso()}, e:(await Store.get('e'))||[], s:(await Store.get('s'))||[], p:(await Store.get('p'))||[]};
+let WISSEN = (await Store.get('wissen'))||{};
+let LOG = (await Store.get('log'))||[];
+let APPMETA = (await Store.get('meta'))||{};
+const META = RAW.meta;
+const TODAY = new Date(META.stand + 'T12:00:00');
+const CARS = {T4:{name:'VW T4 Multivan Syncro', model:'2.5 TDI AXL · 102 PS · Syncro · Bj. 2002'}, TT:{name:'Audi TT 8N quattro S-Line', model:'1.8 T BAM · 225 PS · 6-Gang · Bj. 2002'}};
+const KA = ['Teile','Werkstatt','laufend','Reise'];
+const KA_LABEL = {Teile:'Teile & Material', Werkstatt:'Werkstatt & Inspektion', laufend:'Laufend (Steuer, Versicherung, Sprit)', Reise:'Reise & Überführung'};
+const KA_VAR = {Teile:'--s1', Werkstatt:'--s2', laufend:'--s3', Reise:'--s4'};
+const ZW = ['Wartung/Reparatur','Fixkosten','CamperVAN','Restaurierung','Reise','Werkzeug'];
+const ZW_LABEL = {'Wartung/Reparatur':'Unterhalt (Technik)', Fixkosten:'Fixkosten (Steuer, Versicherung, TÜV)', CamperVAN:'CamperVAN (Wertsteigerung)', Restaurierung:'Restaurierung', Reise:'Reise & Überführung', Werkzeug:'Werkzeug & Werkstatt'};
+const ZW_SHORT = {'Wartung/Reparatur':'Technik', Fixkosten:'Fixkosten', CamperVAN:'CamperVAN', Restaurierung:'Restaurierung', Reise:'Reise', Werkzeug:'Werkzeug'};
+const ZW_VAR = {'Wartung/Reparatur':'--s1', Fixkosten:'--s2', CamperVAN:'--s3', Restaurierung:'--s4', Reise:'--s5', Werkzeug:'--s6'};
+const KAT = {"Elektrik & Energie": ["Kontakte & Verbinder", "Kabel & Leitungen", "Sicherungen & Relais", "Batterie & Laden", "Smart Control", "Solar & 230 V", "Schalter & Steckdosen"], "Beleuchtung": ["Leuchtmittel", "Leuchten & Zubehör"], "Motor & Antrieb": ["Öl & Additive", "Filter", "Kühlung", "Schläuche & Leitungen", "Standheizung & Zuheizer", "Motorlager & Dichtungen"], "Fahrwerk & Bremsen": ["Bremsen", "Fahrwerk & Achse", "Reifen & Felgen"], "Karosserie & Innenraum": ["Clips & Befestigung", "Sitze & Bedienung", "Schutz & Zierteile", "Dämmung & Filz"], "Material & Baustoffe": ["Holz & Platten", "Alu-Profile & Nutverbinder", "Beschläge & Auszüge", "Schrauben & Muttern"], "Chemie & Verbrauch": ["Kleben & Dichten", "Lack & Folie", "Reinigung & Pflege", "Löten"], "Werkzeug & Werkstatt": ["Handwerkzeug", "Akku- & Elektrogeräte", "Crimp- & Lötwerkzeug", "Fräsen & Bohren", "Messen & Anreißen", "Heben & Halten", "Werkstatt-Ausstattung"], "Camping & Alltag": ["Camping-Zubehör", "Handy & Auto-Zubehör"], "Literatur & Sonstiges": ["Literatur", "Sonstiges"]};
+const KAT_NONE = 'Ohne Kategorie';
+const ORT = {"Garage": ["Schrank links", "Schrank mitte links", "Schrank mitte rechts", "Schrank rechts"], "Werkstatt": [], "Dachboden": [], "Gartenhaus": []};
+const ORT_NONE = 'Ohne Ort';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur = (v, d=0) => (v==null||isNaN(v)) ? '–' : v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}) + ' €';
+const kmf = v => v==null ? '–' : Math.round(v).toLocaleString('de-DE') + ' km';
+const dstr = s => { if(!s) return ''; const [y,m,d] = s.split('-'); return `${d}.${m}.${y}`; };
+const day = s => new Date(s + 'T12:00:00');
+const addDays = (dt, n) => new Date(dt.getTime() + n*864e5);
+const iso = dt => dt.toISOString().slice(0,10);
+
+let E = RAW.e.map(x => ({...BLANK, ...x, _o:{km:x.km, betrag:x.betrag, betrag_geplant:x.betrag_geplant}, betrag: x.betrag===''?null:+x.betrag, km: x.km===''?null:+x.km, betrag_geplant: x.betrag_geplant===''?null:+x.betrag_geplant}));
+const byId = Object.fromEntries(E.map(x => [x.id, x]));
+let pending = [];            // Dashboard-Eingaben aus der Datenbank, noch nicht abgeglichen
+let pendingStatus = {};      // ref-id -> status
+let pendingZweck = {};       // ref-id -> zweck
+let pendingKat = {};         // ref-id -> {k,u}
+let pendingOrt = {};         // ref-id -> {o,p}
+let pendingEdit = {};        // ref-id -> geänderte Felder (Bearbeiten, wartet auf Abgleich)
+const zweckOf = x => pendingZweck[x.id] || x.zweck || 'Wartung/Reparatur';
+const needsReview = x => x.typ==='ausgabe' && x.betrag!=null && x.zweck_status==='prüfen' && !pendingZweck[x.id];
+
+// ---------- km-Verlauf & Fälligkeiten ----------
+function kmPoints(car){
+  const pts = [];
+  E.forEach(x => { if(x.fahrzeug===car && x.km && x.datum && !x.datum_abgeleitet) pts.push([day(x.datum).getTime(), x.km]); });
+  RAW.s.forEach(x => { if(x.fahrzeug===car && x.km && x.datum && !x.km_geschaetzt) pts.push([day(x.datum).getTime(), +x.km]); });
+  pts.sort((a,b)=>a[0]-b[0]);
+  const clean = []; pts.forEach(p => { if(!clean.length || p[1] >= clean[clean.length-1][1]) clean.push(p); });
+  return clean.length ? clean : [[TODAY.getTime(), 0]];
+}
+const KM = {}, RATE = {}, CUR = {};
+function calcKm(){
+for(const car of ['T4','TT']){
+  const p = kmPoints(car); KM[car] = p;
+  const last = p[p.length-1]; CUR[car] = {km:last[1], date:new Date(last[0])};
+  const ref = p.filter(q => q[0] <= last[0] - 3*365*864e5).pop() || p[0];
+  RATE[car] = Math.max(1, (last[1]-ref[1]) / Math.max(1,(last[0]-ref[0])/864e5)); // km pro Tag
+}
+}
+calcKm();
+function kmAt(car, t){
+  const p = KM[car]; if(!p.length) return null;
+  if(t <= p[0][0]) return p[0][1];
+  for(let i=1;i<p.length;i++) if(t <= p[i][0]){ const [t0,k0]=p[i-1],[t1,k1]=p[i]; return k0 + (k1-k0)*(t-t0)/Math.max(1,t1-t0); }
+  return p[p.length-1][1] + RATE[car]*(t-p[p.length-1][0])/864e5;
+}
+const RULES = {
+  'Motoröl und Ölfilter wechseln': [/(ölwechsel|öl\s*[–-]\s*und\s*filterwechsel|öl- und filterwechsel|motoröl[^,]*(wechsel|erneuer))/i, /getriebe|spülung bestellt/i],
+  'Nockenwellenantrieb': [/zahnriemen/i, /prüf/i, /(wechsel|service|gewechselt|erneuer)/i],
+  'Bremsflüssigkeitswechseln': [/bremsflüssigkeit/i, /stand|prüf/i, /(wechsel|erneuer|ersetz)/i],
+  'Luftfilter wechseln': [/luftfilter/i, /bestell/i, /(wechsel|gewechselt|erneuer)/i],
+  'Staub- und Pollenfilter wechseln': [/(pollen|innenraum)/i, /bestell/i, /(wechsel|gewechselt|erneuer)/i],
+  'Kraftstofffilter ersetzen': [/(kraftstofffilter|dieselfilter)/i, /entwässer/i, /(wechsel|gewechselt|ersetz|erneuer)/i],
+  'Getriebe- & Winkelgetriebe Öl wechseln': [/getriebeöl/i, /reiniger/i, /(wechsel|erneuer)/i],
+};
+RULES['Luftfiltergehäuse reinigen'] = RULES['Luftfilter wechseln'];
+RULES['Motoren mit autom. Spannvorrichtung'] = RULES['Nockenwellenantrieb'];
+function lastDone(car, task){
+  const c = [];
+  RAW.s.forEach(s => { if(s.fahrzeug===car && s.aufgabe===task && s.status==='erledigt' && s.km) c.push({km:+s.km, datum:s.datum || null, src:'Service-Nachweis' + (s.km_geschaetzt?' (km geplant)':'')}); });
+  const r = RULES[task];
+  if(r) E.forEach(x => {
+    if(x.fahrzeug!==car || x.status!=='erledigt' || !['ausgabe','arbeit'].includes(x.typ)) return;
+    const t = x.titel; if(!r[0].test(t) || (r[1] && r[1].test(t)) || (r[2] && !r[2].test(t))) return;
+    const km = x.km || (x.datum ? kmAt(car, day(x.datum).getTime()) : null);
+    if(km) c.push({km, datum:x.datum || null, src:x.titel, est:!x.km});
+  });
+  c.sort((a,b)=>b.km-a.km); return c[0] || null;
+}
+function dueList(car){
+  const out = [];
+  RAW.p.filter(p => p.fahrzeug===car && (p.intervall_km || p.intervall_jahre)).forEach(p => {
+    const task = p.aufgabe.trim(); const last = lastDone(car, task);
+    const ikm = p.intervall_km ? +p.intervall_km : null, ij = p.intervall_jahre ? +p.intervall_jahre : null;
+    let dueKm=null, rest=null, estDate=null, dueDate=null;
+    if(last && ikm){ dueKm = last.km + ikm; rest = dueKm - CUR[car].km; estDate = addDays(TODAY, rest / RATE[car]); }
+    if(last && ij && last.datum){ dueDate = new Date(day(last.datum)); dueDate.setFullYear(dueDate.getFullYear()+ij); }
+    const cand = [estDate, dueDate].filter(Boolean).sort((a,b)=>a-b)[0] || null;
+    let st = 'na';
+    if(last){
+      const daysLeft = cand ? (cand - TODAY)/864e5 : 9999;
+      st = (rest!=null && rest<0) || daysLeft < 0 ? 'bad' : ((rest!=null && rest < 2500) || daysLeft < 90 ? 'warn' : 'good');
+    }
+    out.push({car, key: !!RULES[task], task: task.replace('Motoren mit autom. Spannvorrichtung','Zahnriemen prüfen (Spannung/Zustand)').replace('Nockenwellenantrieb','Zahnriemen-Wechsel (Nockenwellenantrieb)').replace('Bremsflüssigkeitswechseln','Bremsflüssigkeit wechseln'), gruppe:p.gruppe, ikm, ij, last, dueKm, rest, dueDate, when:cand, st});
+  });
+  const ord = {bad:0, warn:1, good:2, na:3};
+  return out.sort((a,b)=> ord[a.st]-ord[b.st] || (a.when||Infinity)-(b.when||Infinity));
+}
+const DUE = {};
+function calcDue(){ DUE.T4 = dueList('T4'); DUE.TT = dueList('TT'); }
+calcDue();
+const whenTxt = d => !d.when ? '' : (d.when < TODAY ? 'seit ca. ' : 'ca. ') + d.when.toLocaleDateString('de-DE',{month:'short',year:'numeric'});
+const PILL = {bad:'überfällig', warn:'bald fällig', good:'im Plan', na:'keine Daten'};
+const pill = st => `<span class="pill ${st}">${PILL[st]}</span>`;
+let VEH = 'alle';
+try{ const v = localStorage.getItem('gb-veh'); if(v==='T4'||v==='TT'||v==='alle') VEH = v; }catch(e){}
+const inV = x => VEH==='alle' || x.fahrzeug===VEH;
+const inVL = x => VEH==='alle' || x.fahrzeug===VEH || x.fahrzeug==='WERKSTATT';
+const carsV = () => VEH==='alle' ? ['T4','TT'] : [VEH];
+const termine = () => E.filter(x => inV(x) && x.typ==='termin' && x.status==='offen' && !pendingStatus[x.id]).sort((a,b)=>a.datum.localeCompare(b.datum));
+
+// ---------- Kosten ----------
+const isCost = x => x.typ==='ausgabe' && x.betrag!=null && x.kostenart!=='Fahrzeugkauf' && x.zweck!=='Kauf';
+const isTech = x => isCost(x) && zweckOf(x)==='Wartung/Reparatur';
+function costBy(car){
+  const y = {};
+  E.forEach(x => { if(!isCost(x) || (car!=='alle' && x.fahrzeug!==car) || !x.datum) return;
+    const yr = x.datum.slice(0,4); const k = ZW.includes(zweckOf(x)) ? zweckOf(x) : 'Wartung/Reparatur';
+    y[yr] = y[yr] || Object.fromEntries(ZW.map(z=>[z,0])); y[yr][k] += x.betrag; });
+  return y;
+}
+const sum = (arr, f) => arr.reduce((a,x)=>a+(f(x)||0),0);
+function carStats(car){
+  const costs = E.filter(x => x.fahrzeug===car && isCost(x));
+  const kauf = E.find(x => x.fahrzeug===car && x.kostenart==='Fahrzeugkauf');
+  const total = sum(costs, x=>x.betrag);
+  const tech = sum(costs.filter(isTech), x=>x.betrag);
+  const byZ = Object.fromEntries(ZW.map(z=>[z, sum(costs.filter(x=>zweckOf(x)===z), x=>x.betrag)]));
+  const first = KM[car][0];
+  const driven = CUR[car].km - first[1];
+  const todos = E.filter(x => x.fahrzeug===car && ['todo','bestellung'].includes(x.typ) && ['offen','bestellt','zu bestellen'].includes(x.status) && !pendingStatus[x.id]);
+  const plan = sum(todos, x => x.betrag_geplant ?? x.betrag);
+  const yr = String(TODAY.getFullYear());
+  const thisYear = sum(costs.filter(x => isTech(x) && (x.datum||'').startsWith(yr)), x=>x.betrag);
+  const review = costs.filter(needsReview).length;
+  return {total, tech, byZ, review, kauf: kauf ? kauf.betrag : 0, per1000: driven>0 ? tech/driven*1000 : null, driven, since: new Date(first[0]), todos: todos.length, plan, thisYear};
+}
+
+// ---------- Render: Überblick ----------
+function odo(km){
+  const s = String(Math.round(km)).padStart(6,'0');
+  return `<div class="odo" aria-label="${kmf(km)}">${[...s].map((c,i)=>`<span class="${i===s.length-1?'last':''}">${c}</span>`).join('')}</div>`;
+}
+function renderOverview(){
+  const alerts = termine().map(t => { const d = Math.round((day(t.datum)-TODAY)/864e5);
+    return `<div class="alert ${d>60?'warn':''}"><span class="tag ${t.fahrzeug}">${t.fahrzeug}</span><div><b>${esc(t.titel)}</b><div class="small">${dstr(t.datum)} · ${d>=0?`noch ${d} Tage`:`seit ${-d} Tagen überfällig`}${t.notiz?` · ${esc(t.notiz.split('\n').filter(Boolean).slice(-2).join(' · '))}`:''}</div></div></div>`; }).join('');
+  const cards = carsV().map(car => {
+    const st = carStats(car), due = DUE[car].filter(d=>d.st!=='na' && d.key).slice(0,4);
+    return `<article class="panel car ${car}">
+      <div class="carhead"><div><h2 style="margin:0">${CARS[car].name}</h2><div class="model">${CARS[car].model}</div></div><span class="tag ${car}">${car}</span></div>
+      ${odo(CUR[car].km)}
+      <div class="odo-cap">letzter Tachostand vom ${CUR[car].date.toLocaleDateString('de-DE')} · Ø ${Math.round(RATE[car]*365).toLocaleString('de-DE')} km/Jahr</div>
+      <div class="stats">
+        <div class="stat"><div class="v">${eur(st.tech)}</div><div class="l">Unterhalt (Technik) seit Kauf</div></div>
+        <div class="stat"><div class="v">${eur(st.per1000)}</div><div class="l">Technik je 1.000 km (${Math.round(st.driven/1000).toLocaleString('de-DE')} Tsd. km gefahren)</div></div>
+        <div class="stat"><div class="v">${eur(st.thisYear)}</div><div class="l">Technik in ${TODAY.getFullYear()}</div></div>
+        <div class="stat"><div class="v">${st.todos}</div><div class="l">offene To-dos &amp; Bestellungen · ${eur(st.plan)} geplant</div></div>
+      </div>
+      <div class="small muted">Gesamtkosten des Fahrzeugs (ohne Kaufpreis ${eur(st.kauf)}): <b class="num" style="color:var(--ink)">${eur(st.total)}</b>${st.review?` · <a href="#" data-goto="kosten">${st.review} Zuordnungen prüfen</a>`:''}</div>
+      <div class="zbar" role="img" aria-label="Gesamtkosten nach Zweck">${ZW.filter(z=>st.byZ[z]>0).map(z=>`<i style="width:${st.byZ[z]/st.total*100}%;background:var(${ZW_VAR[z]})" title="${ZW_LABEL[z]}: ${eur(st.byZ[z])}"></i>`).join('')}</div>
+      <div class="zleg" style="margin-bottom:14px">${ZW.filter(z=>st.byZ[z]>0).map(z=>`<span><i style="background:var(${ZW_VAR[z]})"></i>${ZW_SHORT[z]} <span class="num">${eur(st.byZ[z])}</span></span>`).join('')}</div>
+      <h3>Nächste Wartung</h3>
+      <div class="due">${due.map(d => `<div class="dueline">${pill(d.st)}<div>${esc(d.task)}<div class="small muted">${d.dueKm?`fällig bei ${kmf(d.dueKm)} · `:''}${whenTxt(d)}</div></div><div class="num small">${d.rest!=null?(d.rest<0?'−':'')+kmf(Math.abs(d.rest)).replace(' km','')+' km':''}</div></div>`).join('') || '<div class="muted small">Keine Intervalldaten.</div>'}</div>
+    </article>`; }).join('');
+  const recent = E.filter(x => inV(x) && ['ausgabe','arbeit'].includes(x.typ) && x.datum && x.datum <= iso(TODAY) && !x.eltern_id).sort((a,b)=>b.datum.localeCompare(a.datum)).slice(0,8);
+  $('#ueberblick').innerHTML = alerts + `<div class="${VEH==='alle'?'grid2':''}">${cards}</div>
+    <div class="panel" style="margin-top:16px"><h2>Zuletzt in der Garage</h2><div class="list">${recent.map(x=>itemHtml(x,false,false,true)).join('')}</div></div>`;
+}
+
+// ---------- Render: Anstehend ----------
+function renderDue(){
+  const rows = carsV().flatMap(c => DUE[c]).filter(d=>d.st!=='na').sort((a,b)=>({bad:0,warn:1,good:2}[a.st]-{bad:0,warn:1,good:2}[b.st]) || (a.when||Infinity)-(b.when||Infinity));
+  const nodata = carsV().flatMap(c => DUE[c]).filter(d=>d.st==='na');
+  const open = E.filter(x => inV(x) && ['todo','bestellung'].includes(x.typ) && ['offen','bestellt','zu bestellen'].includes(x.status) && !x.eltern_id);
+  const kids = id => E.filter(x => x.eltern_id===id);
+  const groups = {};
+  open.forEach(x => { const k = x.fahrzeug; (groups[k] = groups[k] || []).push(x); });
+  const prioSort = (a,b) => (+(a.prio||9))-(+(b.prio||9)) || (a.typ===b.typ?0:(a.typ==='todo'?-1:1));
+  $('#anstehend').innerHTML = `
+    <div class="panel"><h2>Wartung nach Intervall</h2>
+      <p class="small muted" style="margin-top:0">Berechnet aus Service-Nachweis, Journal und Intervallen. Die Datumsschätzung nutzt deine durchschnittliche Fahrleistung.</p>
+      <div class="tbl-wrap"><table><thead><tr><th>Status</th><th>Fzg.</th><th>Aufgabe</th><th>Intervall</th><th class="r">zuletzt</th><th class="r">fällig</th><th class="r">Rest</th><th>ca.</th></tr></thead><tbody>
+      ${rows.map(d => `<tr><td>${pill(d.st)}</td><td><span class="tag ${d.car}">${d.car}</span></td><td>${esc(d.task)}<div class="small muted">${esc(d.last?.src?.slice(0,70) || '')}${d.last?.est?' · km aus Datum geschätzt':''}</div></td>
+      <td class="small">${d.ikm?`${(d.ikm/1000).toLocaleString('de-DE')} Tsd. km`:''}${d.ikm&&d.ij?' / ':''}${d.ij?`${d.ij} J.`:''}</td>
+      <td class="r num small">${d.last?kmf(d.last.km):''}${d.last?.datum?`<br>${dstr(d.last.datum)}`:''}</td>
+      <td class="r num small">${d.dueKm?kmf(d.dueKm):''}${d.dueDate?`<br>${d.dueDate.toLocaleDateString('de-DE')}`:''}</td>
+      <td class="r num small">${d.rest!=null?(d.rest<0?'−':'')+Math.abs(Math.round(d.rest)).toLocaleString('de-DE'):''}</td>
+      <td class="small">${whenTxt(d)}</td></tr>`).join('')}
+      </tbody></table></div>
+      ${nodata.length?`<details style="margin-top:8px"><summary>${nodata.length} Intervalle ohne Nachweis</summary><div class="note">${nodata.map(d=>`${d.car}: ${d.task}`).join('\n')}</div></details>`:''}
+    </div>
+    ${['T4','TT','WERKSTATT'].filter(c=>groups[c]).map(c => `
+    <div class="panel" style="margin-top:16px"><h2><span class="tag ${c}">${c}</span> Offene Aufgaben &amp; Bestellungen</h2>
+      <div class="list">${groups[c].sort(prioSort).map(x => itemHtml(x, true) + kids(x.id).map(k=>itemHtml(k,true,true)).join('')).join('')}</div>
+    </div>`).join('')}`;
+  $('#cnt-an').textContent = rows.filter(d=>d.st==='bad'||d.st==='warn').length + termine().length || '';
+}
+
+// ---------- Eintrag ----------
+const TYP = {ausgabe:'Ausgabe', arbeit:'Arbeit', todo:'To-do', bestellung:'Bestellung', lager:'Lager', termin:'Termin'};
+function itemHtml(x0, actions=false, child=false, edit=false){
+  const x = pendingEdit[x0.id] ? {...x0, ...pendingEdit[x0.id]} : x0;
+  const ps = pendingStatus[x.id];
+  const loc = [x.lagerort, x.box, x.fach].filter(Boolean).join(' · ');
+  const meta = [
+    `<span class="tag ${x.fahrzeug}">${x.fahrzeug}</span>`,
+    `<span>${TYP[x.typ]||x.typ}${x.status && !['erledigt'].includes(x.status)?' · '+esc(x.status):''}</span>`,
+    x.prio?`<span>Prio ${esc(x.prio)}</span>`:'',
+    x.km?`<span class="mono">${kmf(x.km)}</span>`:'',
+    x.bereich?`<span>${esc(x.bereich)}</span>`:'',
+    (x.typ==='ausgabe' && x.betrag!=null && x.zweck && x.zweck!=='Kauf')?`<span><i style="display:inline-block;width:8px;height:8px;border-radius:2px;background:var(${ZW_VAR[zweckOf(x)]||'--ink-3'});margin-right:4px"></i>${ZW_SHORT[zweckOf(x)]||esc(zweckOf(x))}${x.zweck_status==='prüfen'&&!pendingZweck[x.id]?' (Vorschlag)':''}</span>`:'',
+    loc?`<span>Ort: ${esc(loc)}</span>`:'',
+    ps?`<span class="pill warn">${esc(ps)} · wartet auf Abgleich</span>`:'',
+    pendingEdit[x0.id]?`<span class="pill warn">geändert · wartet auf Abgleich</span>`:''
+  ].filter(Boolean).join('');
+  const amount = x.betrag!=null ? eur(x.betrag,2) : (x.betrag_geplant!=null ? `<span class="muted">geplant ${eur(x.betrag_geplant,2)}</span>` : '');
+  const btn = actions && !ps && ['todo','bestellung'].includes(x.typ) && DB ? `<button class="btn ghost" data-done="${x.id}">erledigt</button>` : '';
+  const ebtn = edit && DB ? `<button class="btn ghost" data-edit="${x.id}" aria-label="Eintrag bearbeiten">Bearbeiten</button>` : '';
+  return `<div class="item ${child?'child':''}"><div class="d">${x.datum?dstr(x.datum):''}${x.datum_abgeleitet?'<span title="Datum aus Zeile darüber übernommen">*</span>':''}</div>
+    <div class="t">${esc(x.titel)}<div class="meta">${meta}</div></div><div class="b">${amount} ${btn} ${ebtn}</div>
+    ${x.notiz?`<details><summary>Notiz</summary><div class="note">${esc(x.notiz)}</div></details>`:''}</div>`;
+}
+
+// ---------- Kosten-Ansicht ----------
+let costCar = 'alle', costView = 'chart', rvAll = false;
+function renderCosts(){
+  costCar = VEH;
+  const y = costBy(costCar); const years = Object.keys(y).sort();
+  const totals = years.map(k => ZW.reduce((a,c)=>a+y[k][c],0));
+  const maxV = Math.max(...totals, 1);
+  const step = maxV > 8000 ? 2000 : maxV > 4000 ? 1000 : 500;
+  const top = Math.ceil(maxV/step)*step;
+  const W = 760, H = 300, L = 54, R = 8, T = 12, B = 28, bw = (W-L-R)/Math.max(1,years.length);
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kosten pro Jahr nach Zweck">`;
+  for(let v=0; v<=top; v+=step){ const yy = T + (H-T-B)*(1-v/top);
+    svg += `<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="var(--line)" stroke-width="1"/><text x="${L-6}" y="${yy+4}" text-anchor="end" font-size="11" fill="var(--ink-3)" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text',Arial,sans-serif">${v.toLocaleString('de-DE')}</text>`; }
+  years.forEach((yr,i) => {
+    let acc = 0; const x = L + i*bw + bw*0.18, w = bw*0.64;
+    ZW.forEach((k,j) => { const v = y[yr][k]; if(v<=0) return;
+      const h = (H-T-B)*v/top, yy = T + (H-T-B)*(1-(acc+v)/top);
+      const isTop = ZW.slice(j+1).every(q => y[yr][q] <= 0);
+      svg += `<rect x="${x}" y="${yy}" width="${w}" height="${Math.max(0,h-2)}" rx="${isTop?3:0}" fill="var(${ZW_VAR[k]})"/>`; acc += v; });
+    svg += `<rect x="${L+i*bw}" y="${T}" width="${bw}" height="${H-T-B}" fill="transparent" data-yr="${yr}"/>`;
+    svg += `<text x="${x+w/2}" y="${H-9}" text-anchor="middle" font-size="11" fill="var(--ink-2)" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text',Arial,sans-serif">${yr}</text>`;
+  });
+  svg += `<line x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}" stroke="var(--ink-3)" stroke-width="1"/></svg>`;
+  const all = E.filter(x => isCost(x) && (costCar==='alle' || x.fahrzeug===costCar));
+  const byZ = ZW.map(k => [k, sum(all.filter(x=>zweckOf(x)===k), x=>x.betrag)]);
+  const grand = sum(all, x=>x.betrag), tech = sum(all.filter(isTech), x=>x.betrag);
+  const biggest = [...all].filter(isTech).sort((a,b)=>b.betrag-a.betrag).slice(0,10);
+  const kauf = E.filter(x => x.kostenart==='Fahrzeugkauf' && (costCar==='alle'||x.fahrzeug===costCar));
+  const review = all.filter(needsReview).sort((a,b)=>b.betrag-a.betrag);
+  const shownRv = rvAll ? review : review.slice(0,15);
+  const table = `<div class="tbl-wrap"><table><thead><tr><th>Jahr</th>${ZW.map(k=>`<th class="r">${ZW_SHORT[k]}</th>`).join('')}<th class="r">Summe</th></tr></thead><tbody>${years.map((yr,i)=>`<tr><td class="num">${yr}</td>${ZW.map(k=>`<td class="r num">${eur(y[yr][k])}</td>`).join('')}<td class="r num"><b>${eur(totals[i])}</b></td></tr>`).join('')}</tbody></table></div>`;
+  const opts = cur => ZW.map(z=>`<option value="${z}" ${z===cur?'selected':''}>${ZW_SHORT[z]}</option>`).join('');
+  $('#kosten').innerHTML = `
+    <div class="filters">
+    <div class="seg" role="group" aria-label="Ansicht"><button data-view="chart" aria-pressed="${costView==='chart'}">Diagramm</button><button data-view="table" aria-pressed="${costView==='table'}">Tabelle</button></div></div>
+    <div class="kpis">
+      <div class="panel stat"><div class="v">${eur(tech)}</div><div class="l">Unterhalt (Technik)</div></div>
+      <div class="panel stat"><div class="v">${eur(grand)}</div><div class="l">Gesamtkosten ohne Kaufpreis</div></div>
+      <div class="panel stat"><div class="v">${eur(sum(kauf,x=>x.betrag))}</div><div class="l">Kaufpreis${kauf.length>1?'e':''}</div></div>
+      <div class="panel stat"><div class="v">${eur(grand + sum(kauf,x=>x.betrag))}</div><div class="l">investiert inkl. Kauf</div></div>
+    </div>
+    ${review.length ? `<div class="panel" style="margin-bottom:16px"><h2>Zuordnung prüfen <span class="small muted">${review.length} Buchungen · ${eur(sum(review,x=>x.betrag))}</span></h2>
+      <p class="small muted" style="margin-top:0">Vorschlag steht im Auswahlfeld. Passt er, einfach „bestätigen“. Deine Wahl wird sofort gespeichert.${DB?'':' <b>Speichern ist in dieser Ansicht nicht verfügbar.</b>'}</p>
+      <div>${shownRv.map(x=>`<div class="rv"><div class="d small mono muted">${dstr(x.datum)}</div><div>${esc(x.titel)}<div class="small muted"><span class="tag ${x.fahrzeug}">${x.fahrzeug}</span>${x.eltern_id&&byId[x.eltern_id]?` · zu: ${esc(byId[x.eltern_id].titel.slice(0,50))}`:''}</div></div><div class="num">${eur(x.betrag,2)}</div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><select aria-label="Zweck" data-zsel="${x.id}">${opts(x.zweck)}</select><button class="btn ghost" data-zok="${x.id}" ${DB?'':'disabled'}>bestätigen</button></div></div>`).join('')}</div>
+      ${review.length>15?`<div class="empty" style="padding:10px"><button class="btn ghost" data-rvall="1">${rvAll?'weniger anzeigen':`alle ${review.length} anzeigen`}</button></div>`:''}
+    </div>` : ''}
+    <div class="panel"><h2>Kosten pro Jahr nach Zweck</h2>
+      <div class="legend">${ZW.map(k=>`<span><i style="background:var(${ZW_VAR[k]})"></i>${ZW_LABEL[k]}</span>`).join('')}</div>
+      <div ${costView==='chart'?'':'hidden'} id="chartbox">${svg}</div><div ${costView==='table'?'':'hidden'}>${table}</div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="panel"><h2>Nach Zweck</h2><div class="bars">${byZ.map(([k,v])=>`<div class="hbar"><div>${ZW_LABEL[k]}<div class="track"><div class="fill" style="width:${grand?v/grand*100:0}%;background:var(${ZW_VAR[k]})"></div></div></div><div class="num r">${eur(v)}</div></div>`).join('')}</div>
+        <p class="small muted">Technik = Wartung, Reparatur, Verschleiß. Die Kennzahl „je 1.000 km“ rechnet nur mit Technik.</p></div>
+      <div class="panel"><h2>Größte Technik-Posten</h2><div class="list">${biggest.map(x=>itemHtml(x)).join('')}</div></div>
+    </div>`;
+  const tip = $('#tip');
+  $('#chartbox svg')?.addEventListener('mousemove', ev => { const r = ev.target.closest('[data-yr]'); if(!r){tip.hidden=true;return;}
+    const yr = r.dataset.yr; tip.innerHTML = `<b>${yr}</b><br>${ZW.filter(k=>y[yr][k]>0).map(k=>`${ZW_SHORT[k]}: <span class="num">${eur(y[yr][k])}</span>`).join('<br>')}<br><b>Summe: <span class="num">${eur(ZW.reduce((a,c)=>a+y[yr][c],0))}</span></b>`;
+    tip.hidden=false; tip.style.left=Math.min(ev.clientX+14, innerWidth-280)+'px'; tip.style.top=(ev.clientY+14)+'px'; });
+  $('#chartbox svg')?.addEventListener('mouseleave', ()=> tip.hidden=true);
+  setCounts();
+}
+function setCounts(){
+  const n = E.filter(x => isCost(x) && needsReview(x)).length;
+  const c = $('#cnt-ko'); if(c) c.textContent = n || '';
+}
+
+// ---------- Chronik ----------
+let chrCar='alle', chrTyp='alle', chrZw='alle', chrQ='', chrLimit=150;
+function renderChron(){
+  chrCar = VEH;
+  const q = chrQ.toLowerCase().trim();
+  const match = x => (chrCar==='alle'||x.fahrzeug===chrCar) && (chrTyp==='alle'||x.typ===chrTyp) && (chrZw==='alle'||(x.typ==='ausgabe'&&zweckOf(x)===chrZw)) && (!q || (x.titel+' '+x.notiz+' '+x.bereich+' '+(x.km||'')).toLowerCase().includes(q));
+  const hits = E.filter(match);
+  const shown = new Set(hits.map(x=>x.id));
+  const roots = E.filter(x => shown.has(x.id) && (!x.eltern_id || !shown.has(x.eltern_id))).sort((a,b)=>(b.datum||'').localeCompare(a.datum||''));
+  const kids = id => E.filter(x => x.eltern_id===id && shown.has(x.id));
+  let html = '', cur = '', n = 0;
+  for(const r of roots){ if(n>=chrLimit) break; const m = (r.datum||'ohne Datum').slice(0,7);
+    if(m!==cur){ cur=m; const lab = r.datum ? new Date(r.datum.slice(0,7)+'-15').toLocaleDateString('de-DE',{month:'long',year:'numeric'}) : 'ohne Datum';
+      html += `<div class="monthhead"><span>${lab}</span></div>`; }
+    html += itemHtml(r,false,false,true) + kids(r.id).map(k=>itemHtml(k,false,true,true)).join(''); n++; }
+  const opt = (v,l,cur) => `<button data-v="${v}" aria-pressed="${cur===v}">${l}</button>`;
+  const box = $('#chronik');
+  if(!box.dataset.init){ box.dataset.init=1; box.innerHTML = `<div class="filters"><input type="search" id="q" placeholder="Suchen: Teil, Teilenummer, Händler, Notiz …" aria-label="Chronik durchsuchen">
+    <div class="seg" id="fc" hidden>${opt('alle','Beide','alle')}${opt('T4','T4')}${opt('TT','TT')}</div>
+    <select id="fz" aria-label="Zweck"><option value="alle">Alle Zwecke</option>${ZW.map(z=>`<option value="${z}">${ZW_SHORT[z]}</option>`).join('')}</select>
+    <select id="ft" aria-label="Typ"><option value="alle">Alle Typen</option>${Object.entries(TYP).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
+    <div class="small muted" id="chrinfo"></div><div class="panel" style="padding-top:4px"><div class="list" id="chrlist"></div></div>`;
+    $('#q').addEventListener('input', e => { chrQ=e.target.value; chrLimit=150; renderChron(); });
+    $('#fc').addEventListener('click', e => { const b=e.target.closest('button'); if(!b) return; chrCar=b.dataset.v; [...$('#fc').children].forEach(x=>x.setAttribute('aria-pressed', x===b)); renderChron(); });
+    $('#ft').addEventListener('change', e => { chrTyp=e.target.value; renderChron(); });
+    $('#fz').addEventListener('change', e => { chrZw=e.target.value; renderChron(); });
+  }
+  $('#chrinfo').textContent = `${hits.length.toLocaleString('de-DE')} Einträge${hits.length && q ? ` · Summe Beträge: ${eur(sum(hits.filter(isCost),x=>x.betrag),2)}` : ''} · * = Datum aus der Zeile darüber übernommen`;
+  $('#chrlist').innerHTML = (html || '<div class="empty">Nichts gefunden.</div>') + (roots.length>chrLimit?`<div class="empty"><button class="btn ghost" id="more">Weitere ${Math.min(150,roots.length-chrLimit)} anzeigen</button></div>`:'');
+  $('#more')?.addEventListener('click', ()=>{ chrLimit+=150; renderChron(); });
+}
+
+// ---------- Lager ----------
+let lagQ='', lagK='', lagU='', lagO='', lagP='', lagView='kat', lagRev=false, lagNoOrt=false;
+const ortOf = x => pendingOrt[x.id] ? {o:pendingOrt[x.id].o, p:pendingOrt[x.id].p} : {o:x.lagerort||'', p:x.platz||''};
+const ortOptions = (o,p,blank) => { const known = o in ORT && (!p || ORT[o].includes(p)); return `<option value="">${blank}</option>` + Object.keys(ORT).map(oo => ORT[oo].length ? `<optgroup label="${esc(oo)}"><option value="${esc(oo)}|"${(oo===o&&!p)?' selected':''}>${esc(oo)}, ohne Abteil</option>` + ORT[oo].map(pp => `<option value="${esc(oo+'|'+pp)}"${(oo===o&&pp===p)?' selected':''}>${esc(oo)} › ${esc(pp)}</option>`).join('') + '</optgroup>' : `<option value="${esc(oo)}|"${(oo===o&&!p)?' selected':''}>${esc(oo)}</option>`).join('') + ((o && !known) ? `<option value="${esc(o+'|'+p)}" selected>${esc(p?o+' › '+p:o)} (alt)</option>` : ''); };
+const katOf = x => pendingKat[x.id] ? {k:pendingKat[x.id].k, u:pendingKat[x.id].u, st:'bestätigt'} : {k:x.kategorie||'', u:x.unterkategorie||'', st:x.kat_status||''};
+const katOptions = (k,u,blank) => `<option value="">${blank}</option>` + Object.keys(KAT).map(kk => `<optgroup label="${esc(kk)}">` + KAT[kk].map(uu => `<option value="${esc(kk+'|'+uu)}"${(kk===k&&uu===u)?' selected':''}>${esc(uu)}</option>`).join('') + '</optgroup>').join('');
+function renderStock(){
+  const items = E.filter(x => inVL(x) && ((x.typ==='lager' && ['auf Lager','umtauschen'].includes(x.status)) || x.lagerort || x.auf_lager==='ja'));
+  const q = lagQ.toLowerCase().trim();
+  const hay = x => (x.titel+' '+x.notiz+' '+ortOf(x).o+' '+ortOf(x).p+' '+x.box+' '+x.fach+' '+katOf(x).k+' '+katOf(x).u).toLowerCase();
+  const inKat = x => { const c = katOf(x); return (!lagK || c.k===lagK) && (!lagU || c.u===lagU); };
+  const inOrt = x => { const c = ortOf(x); return (!lagO || (lagO===ORT_NONE ? !c.o : c.o===lagO)) && (!lagP || (lagP==='∅' ? !c.p : c.p===lagP)); };
+  const isRev = x => { const c = katOf(x); return !c.k || c.st==='prüfen'; };
+  const noOrt = x => !ortOf(x).o;
+  const base = items.filter(x => !q || hay(x).includes(q));
+  const hits = base.filter(x => inKat(x) && inOrt(x) && (!lagRev || isRev(x)) && (!lagNoOrt || noOrt(x)));
+  const nRev = items.filter(isRev).length, nNoOrt = items.filter(noOrt).length;
+  const box = $('#lager');
+  if(!box.dataset.init){ box.dataset.init=1; box.innerHTML = `<div class="lfilters">
+      <input type="search" id="lq" class="lsearch" placeholder="Wo liegt …? z. B. Ölfilter, Crimp, Sicherung" aria-label="Lager durchsuchen">
+      <select id="lk" aria-label="Kategorie filtern"></select>
+      <select id="lu" aria-label="Unterkategorie filtern"></select>
+      <select id="lo" aria-label="Lagerort filtern"></select>
+      <select id="lp" aria-label="Platz filtern"></select></div>
+    <div class="lbar"><div class="seg" role="group" aria-label="Ansicht"><button type="button" data-lv="kat">Nach Kategorie</button><button type="button" data-lv="ort">Nach Ort</button></div><button type="button" class="chip" id="lno"></button><button type="button" class="chip" id="lrev"></button></div>
+    <div class="small muted" id="linfo"></div><div id="lres" style="margin-top:10px"></div>`;
+    $('#lq').addEventListener('input', e => { lagQ=e.target.value; renderStock(); });
+    $('#lk').addEventListener('change', e => { lagK=e.target.value; lagU=''; renderStock(); });
+    $('#lu').addEventListener('change', e => { lagU=e.target.value; renderStock(); });
+    $('#lo').addEventListener('change', e => { lagO=e.target.value; lagP=''; renderStock(); });
+    $('#lp').addEventListener('change', e => { lagP=e.target.value; renderStock(); });
+    $('#lrev').addEventListener('click', () => { lagRev=!lagRev; renderStock(); });
+    $('#lno').addEventListener('click', () => { lagNoOrt=!lagNoOrt; renderStock(); });
+    box.querySelectorAll('[data-lv]').forEach(b => b.addEventListener('click', () => { lagView=b.dataset.lv; renderStock(); }));
+    box.addEventListener('change', async e => {
+      const ks = e.target.closest('[data-ksel]'), os = e.target.closest('[data-osel]'); const sel = ks || os; if(!sel || !DB) return;
+      const x = byId[sel.dataset.ksel || sel.dataset.osel]; const [a,b] = sel.value ? sel.value.split('|') : ['',''];
+      if(!a){ sel.value = ''; return; }
+      sel.disabled = true;
+      const doc = ks ? {aktion:'kategorie', ref:x.id, kategorie:a, unterkategorie:b} : {aktion:'ort', ref:x.id, lagerort:a, platz:b};
+      try{ await DB.collection('eingaben').add({...doc, fahrzeug:x.fahrzeug, titel:x.titel, datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false}); }
+      catch(err){ sel.disabled = false; sel.title = 'Nicht gespeichert'; return; }
+      renderStock(); }); }
+  // Filter-Dropdowns mit Zählern
+  const cK = {}, cU = {}, cO = {}, cP = {};
+  base.forEach(x => { const c = katOf(x), o = ortOf(x); const k = c.k||KAT_NONE, oo = o.o||ORT_NONE;
+    if(inOrt(x) && (!lagNoOrt || noOrt(x)) && (!lagRev || isRev(x))){ cK[k]=(cK[k]||0)+1; if(k===lagK) cU[c.u||'–']=(cU[c.u||'–']||0)+1; }
+    if(inKat(x) && (!lagRev || isRev(x)) && !lagNoOrt){ cO[oo]=(cO[oo]||0)+1; if(oo===lagO) cP[o.p||'∅']=(cP[o.p||'∅']||0)+1; } });
+  const nK = Object.values(cK).reduce((a,b)=>a+b,0), nO = Object.values(cO).reduce((a,b)=>a+b,0);
+  $('#lk').innerHTML = `<option value="">Alle Kategorien (${nK})</option>` + [...Object.keys(KAT), KAT_NONE].filter(k => cK[k] || k===lagK).map(k => `<option value="${esc(k)}"${k===lagK?' selected':''}>${esc(k)} (${cK[k]||0})</option>`).join('');
+  $('#lu').innerHTML = `<option value="">${lagK?'Alle Unterkategorien':'Unterkategorie'}</option>` + (KAT[lagK]||[]).filter(u => cU[u] || u===lagU).map(u => `<option value="${esc(u)}"${u===lagU?' selected':''}>${esc(u)} (${cU[u]||0})</option>`).join('');
+  $('#lu').disabled = !lagK || !KAT[lagK];
+  $('#lo').innerHTML = `<option value="">Alle Orte (${nO})</option>` + [...Object.keys(ORT), ORT_NONE].filter(o => cO[o] || o===lagO).map(o => `<option value="${esc(o)}"${o===lagO?' selected':''}>${esc(o)} (${cO[o]||0})</option>`).join('');
+  $('#lp').innerHTML = `<option value="">${(ORT[lagO]||[]).length?'Alle Plätze':'Platz'}</option>` + ((ORT[lagO]||[]).length ? [...ORT[lagO], '∅'] : []).filter(p => cP[p] || p===lagP).map(p => `<option value="${esc(p)}"${p===lagP?' selected':''}>${esc(p==='∅'?'ohne Abteil':p)} (${cP[p]||0})</option>`).join('');
+  $('#lp').disabled = !(ORT[lagO]||[]).length;
+  box.querySelectorAll('[data-lv]').forEach(b => b.setAttribute('aria-pressed', b.dataset.lv===lagView));
+  const rb = $('#lrev'); rb.textContent = `Kategorie prüfen (${nRev})`; rb.setAttribute('aria-pressed', lagRev); rb.disabled = !nRev && !lagRev;
+  const nb = $('#lno'); nb.textContent = `Ohne Ort (${nNoOrt})`; nb.setAttribute('aria-pressed', lagNoOrt); nb.disabled = !nNoOrt && !lagNoOrt;
+  $('#linfo').textContent = `${hits.length} von ${items.length} Artikeln · Wert (soweit Preis bekannt): ${eur(sum(hits,x=>x.betrag),2)}`;
+  // Zeilen
+  const row = x => { const c = katOf(x), o = ortOf(x); const bf = [x.box,x.fach].filter(Boolean).join(' · ');
+    const kcell = DB ? `<select data-ksel="${x.id}" aria-label="Kategorie für ${esc(x.titel)}">${katOptions(c.k,c.u,'Kategorie wählen …')}</select>` : `<span class="lktext">${c.k?esc(c.k+' › '+c.u):'Ohne Kategorie'}</span>`;
+    const ocell = DB ? `<select data-osel="${x.id}" aria-label="Lagerort für ${esc(x.titel)}">${ortOptions(o.o,o.p,'Ort wählen …')}</select>` : `<span class="lktext">${o.o?esc(o.p?o.o+' › '+o.p:o.o):'Ohne Ort'}</span>`;
+    const flag = (!c.k || c.st==='prüfen') ? `<span class="pill warn">${c.k?'Kategorie prüfen':'Kategorie fehlt'}</span>` : '';
+    return `<div class="lrow"><div class="lt">${esc(x.titel)}${x.notiz?`<div class="small muted">${esc(x.notiz.split('\n')[0].slice(0,90))}</div>`:''}<div class="lm"><span class="tag ${x.fahrzeug}">${x.fahrzeug}</span>${bf?`<span>${esc(bf)}</span>`:''}${x.betrag!=null?`<span class="num">${eur(x.betrag,2)}</span>`:''}</div></div><div class="lk">${kcell}${flag}${ocell}</div></div>`; };
+  let html = '';
+  if(lagView==='ort'){
+    const g = {}; hits.forEach(x => { const o = ortOf(x); const k = o.o||ORT_NONE; ((g[k]=g[k]||{})[o.p]=g[k][o.p]||[]).push(x); });
+    const order = [...Object.keys(ORT), ...Object.keys(g).filter(k => !(k in ORT) && k!==ORT_NONE), ORT_NONE];
+    html = order.filter(k => g[k]).map(k => { const pl = ORT[k]||[]; const us = Object.keys(g[k]).sort((a,b)=>{ const ia = pl.indexOf(a), ib = pl.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b); });
+      const n = us.reduce((a,u)=>a+g[k][u].length,0);
+      return `<div class="panel lgrp"><h3><span>${esc(k)}</span><span class="small muted">${n}</span></h3>${us.map(u => `${(u||pl.length)?`<div class="lsub"><span>${esc(u||'ohne Abteil')}</span><span>${g[k][u].length}</span></div>`:''}${g[k][u].sort((a,b)=>(a.box+a.fach).localeCompare(b.box+b.fach)||a.titel.localeCompare(b.titel)).map(row).join('')}`).join('')}</div>`; }).join('');
+  } else {
+    const g = {}; hits.forEach(x => { const c = katOf(x); const k = c.k||KAT_NONE; const u = c.k ? (c.u||'Sonstiges') : ''; ((g[k]=g[k]||{})[u]=g[k][u]||[]).push(x); });
+    const order = [...Object.keys(KAT), ...Object.keys(g).filter(k => !KAT[k] && k!==KAT_NONE), KAT_NONE];
+    html = order.filter(k => g[k]).map(k => { const us = Object.keys(g[k]).sort((a,b)=>{ const ia = (KAT[k]||[]).indexOf(a), ib = (KAT[k]||[]).indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib) || a.localeCompare(b); });
+      const n = us.reduce((a,u)=>a+g[k][u].length,0);
+      return `<div class="panel lgrp"><h3><span>${esc(k)}</span><span class="small muted">${n}</span></h3>${us.map(u => `${u?`<div class="lsub"><span>${esc(u)}</span><span>${g[k][u].length}</span></div>`:''}${g[k][u].sort((a,b)=>a.titel.localeCompare(b.titel)).map(row).join('')}`).join('')}</div>`; }).join('');
+  }
+  $('#lres').innerHTML = html || '<div class="empty">Nichts gefunden.</div>';
+}
+
+// ---------- Erfassen ----------
+// ---------- Lokale Datenbank (ersetzt die Claude-Datenbank) ----------
+// Gleiche kleine API wie zuvor (DB.collection('eingaben').add, DB.doc('eingaben/<id>').delete),
+// aber jede Eingabe wirkt sofort auf das Journal E und wird im Browser (IndexedDB) gespeichert.
+const eToRec = x => {
+  const r = {};
+  COLS.forEach(c => {
+    let v = x[c];
+    if(c === 'km' || c === 'betrag' || c === 'betrag_geplant'){
+      const o = x._o && x._o[c];
+      v = v == null ? '' : (o != null && o !== '' && +o === v ? o : String(v));
+    }
+    r[c] = v == null ? '' : v;
+  });
+  return r;
+};
+const clone = x => ({...x});
+const nextId = () => { let n = 0; E.forEach(x => { const m = /^A(\d+)$/.exec(x.id); if(m) n = Math.max(n, +m[1]); }); return 'A' + (n + 1); };
+const addNote = (x, line) => { x.notiz = x.notiz ? x.notiz + '\n' + line : line; };
+const STATUS_DEFAULT = {ausgabe:'erledigt', arbeit:'erledigt', todo:'offen', bestellung:'bestellt', lager:'auf Lager', termin:'offen'};
+
+function newRow(d, id, docId){
+  const typ = d.typ || 'arbeit';
+  const num = v => (v == null || v === '' ? null : +v);
+  const x = {...BLANK, id, fahrzeug: d.fahrzeug || '', datum: d.datum || todayIso(), km: num(d.km), typ,
+    status: d.status || STATUS_DEFAULT[typ] || 'erledigt', bereich: d.bereich || '', titel: d.titel || 'Ohne Titel',
+    betrag: num(d.betrag), kostenart: d.kostenart || '', zweck: d.zweck || 'Wartung/Reparatur',
+    zweck_status: d.zweck ? 'bestätigt' : (typ === 'ausgabe' ? 'prüfen' : 'auto'), betrag_geplant: num(d.betrag_geplant),
+    auf_lager: typ === 'lager' ? 'ja' : '', lagerort: d.lagerort || '', platz: d.platz || '', box: d.box || '', fach: d.fach || '',
+    bestellt_am: d.bestellt_am || '', notiz: d.notiz || '', quelle: 'app:' + docId,
+    kategorie: d.kategorie || '', unterkategorie: d.unterkategorie || '', kat_status: d.kategorie ? 'bestätigt' : (typ === 'lager' ? 'prüfen' : '')};
+  x._o = {km: '', betrag: '', betrag_geplant: ''};
+  return x;
+}
+function serviceRow(x){
+  if(!x.km || x.status !== 'erledigt' || !['arbeit','ausgabe'].includes(x.typ) || !['T4','TT'].includes(x.fahrzeug)) return null;
+  const task = Object.keys(RULES).find(t => { const r = RULES[t]; return RAW.p.some(p => p.fahrzeug === x.fahrzeug && p.aufgabe.trim() === t) && r[0].test(x.titel) && !(r[1] && r[1].test(x.titel)) && (!r[2] || r[2].test(x.titel)); });
+  if(!task) return null;
+  const pl = RAW.p.find(p => p.fahrzeug === x.fahrzeug && p.aufgabe.trim() === task);
+  return {fahrzeug: x.fahrzeug, gruppe: pl ? pl.gruppe : 'Wartung/Wechsel', aufgabe: task, km: String(x.km), datum: x.datum, status: 'erledigt', km_geschaetzt: '', notiz: 'App ' + x.id};
+}
+function rollback(entry){
+  if(entry.svc){ const i = RAW.s.indexOf(entry.svc); if(i >= 0){ RAW.s.splice(i, 1); Store.set('s', RAW.s); } entry.svc = null; }
+  const u = entry.undo; if(!u) return;
+  if(u.remove){ const i = E.findIndex(x => x.id === u.remove); if(i >= 0) E.splice(i, 1); delete byId[u.remove]; }
+  else if(u.restore){ const x = byId[u.restore.id]; if(x) Object.assign(x, u.restore); }
+}
+async function persist(){
+  const a = await Store.set('e', E.map(eToRec)), b = await Store.set('log', LOG), c = await Store.set('meta', APPMETA);
+  return a && b && c;
+}
+async function applyEingabe(d){
+  const docId = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const entry = {id: docId, data: d, erstellt: d.erstellt || new Date().toISOString(), undo: null, target: ''};
+  if(d.aktion === 'neu'){
+    if(!d.fahrzeug || !String(d.titel || '').trim()) throw new Error('Fahrzeug und Titel fehlen.');
+    const x = newRow(d, nextId(), docId); E.push(x); byId[x.id] = x; entry.undo = {remove: x.id}; entry.target = x.id;
+    const sv = serviceRow(x); if(sv){ RAW.s.push(sv); entry.svc = sv; await Store.set('s', RAW.s); }
+  } else {
+    const x = byId[d.ref]; if(!x) throw new Error('Eintrag nicht gefunden.');
+    entry.undo = {restore: clone(x)}; entry.target = x.id;
+    const today = d.datum || todayIso();
+    switch(d.aktion){
+      case 'status':
+        x.status = d.status; if(d.status === 'bestellt') x.bestellt_am = today;
+        addNote(x, d.status.charAt(0).toUpperCase() + d.status.slice(1) + ' am ' + dstr(today) + ' (App).'); break;
+      case 'zweck': x.zweck = d.zweck; x.zweck_status = 'bestätigt'; break;
+      case 'ort': x.lagerort = d.lagerort || ''; x.platz = d.platz || ''; break;
+      case 'kategorie': x.kategorie = d.kategorie || ''; x.unterkategorie = d.unterkategorie || ''; x.kat_status = 'bestätigt'; break;
+      case 'geliefert':
+        x.status = 'auf Lager'; x.auf_lager = 'ja'; x.lagerort = d.lagerort || x.lagerort; x.platz = d.platz || '';
+        if(d.box) x.box = d.box; if(d.fach) x.fach = d.fach;
+        if(d.kategorie){ x.kategorie = d.kategorie; x.unterkategorie = d.unterkategorie || ''; x.kat_status = 'bestätigt'; }
+        addNote(x, 'Geliefert am ' + dstr(today) + ' (App).'); break;
+      case 'aendern': {
+        const f = d.felder || {};
+        Object.entries(f).forEach(([k, v]) => { x[k] = (v == null && !EDIT_NUM.includes(k)) ? '' : v; });
+        if('zweck' in f) x.zweck_status = 'bestätigt';
+        if('datum' in f) x.datum_abgeleitet = '';
+        break; }
+      default: throw new Error('Unbekannte Aktion: ' + d.aktion);
+    }
+  }
+  LOG.push(entry); if(LOG.length > 300) LOG.splice(0, LOG.length - 300);
+  APPMETA.dirty = true;
+  const saved = await persist();
+  if(!saved && Store.ok){ rollback(entry); LOG.pop(); throw new Error('Speichern im Browser ist fehlgeschlagen.'); }
+  refresh();
+  return {id: entry.id};
+}
+async function undoEingabe(id){
+  const i = LOG.findIndex(l => l.id === id); if(i < 0) return;
+  rollback(LOG[i]); LOG.splice(i, 1); await persist(); refresh();
+}
+const DB = {
+  collection(name){ return {add: d => name === 'eingaben' ? applyEingabe(d) : Promise.reject(new Error('Unbekannte Sammlung'))}; },
+  doc(path){ const id = path.split('/')[1]; return {delete: () => undoEingabe(id)}; }
+};
+function recentList(){
+  const last = new Map(); LOG.forEach((l, i) => last.set(l.target, i));
+  return LOG.map((l, i) => ({id: l.id, data: l.data, undoable: last.get(l.target) === i})).slice(-25).reverse();
+}
+let kmAck = null;
+function kmCheck(car, km, datum){
+  if(km == null || !CUR[car] || !CUR[car].km) return '';
+  const last = CUR[car].km, f = n => n.toLocaleString('de-DE');
+  if(km > last + 3000) return `km-Stand ${f(km)} liegt weit über dem letzten Stand (${f(last)}). Tippfehler? Tippe nochmal auf Speichern, wenn er stimmt.`;
+  if(km < last && (datum || '') >= iso(CUR[car].date)) return `km-Stand ${f(km)} liegt unter dem letzten Stand (${f(last)}). Tippe nochmal auf Speichern, wenn er stimmt.`;
+  return '';
+}
+function refresh(){
+  calcKm(); calcDue(); renderVeh(); setStamp();
+  const n = carsV().flatMap(c => DUE[c]).filter(d => d.st === 'bad' || d.st === 'warn').length + termine().length; $('#cnt-an').textContent = n || '';
+  R[tab](); setCounts(); updateNotice();
+}
+function setStamp(){
+  $('#stamp').innerHTML = `Heute ${dstr(todayIso())}<br>${E.length.toLocaleString('de-DE')} Einträge · lokal in diesem Browser`;
+}
+function updateNotice(){
+  const el = $('#notice'); if(!el) return; const m = [];
+  const go = '<a href="#" data-goto="daten">Daten</a>';
+  if(!E.length) m.push(['bad', `<b>Noch keine Daten.</b> Importiere deine CSV-Dateien im Menü ${go}.`]);
+  else {
+    if(!Store.ok) m.push(['bad', `<b>Speicher nicht verfügbar.</b> Änderungen gehen beim Schließen verloren. Sichere sie im Menü ${go}.`]);
+    const lb = APPMETA.lastBackup, days = lb ? (Date.now() - new Date(lb)) / 864e5 : null;
+    if(APPMETA.dirty && (days == null || days > 14)) m.push(['warn', `<b>Backup fällig.</b> ${lb ? 'Letztes Backup vor ' + Math.floor(days) + ' Tagen.' : 'Noch kein Backup gemacht.'} Es gibt Änderungen, die nur in diesem Browser liegen. <a href="#" data-goto="daten">Jetzt sichern</a>`]);
+  }
+  el.innerHTML = m.map(([c, h]) => `<div class="alert ${c === 'warn' ? 'warn' : ''}"><div>${h}</div></div>`).join('');
+}
+
+// ---------- Daten: Import, Export, Backup ----------
+let staged = null;
+const nf = n => (+n).toLocaleString('de-DE');
+function dl(name, text, mime){
+  const b = new Blob([text], {type: mime || 'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+async function markBackup(){ APPMETA.lastBackup = new Date().toISOString(); APPMETA.dirty = false; await Store.set('meta', APPMETA); updateNotice(); }
+const backupJson = () => JSON.stringify({format: 'zuendfunke-backup', version: 1, erstellt: new Date().toISOString(), e: E.map(eToRec), s: RAW.s, p: RAW.p, wissen: WISSEN, log: LOG, meta: APPMETA});
+
+async function stageFiles(files){
+  const s = {names: [], e: null, s: null, p: null, wissen: null, backup: null, problems: [], keepApp: true};
+  for(const f of files){
+    let t; try{ t = (await f.text()).replace(/^﻿/, ''); }catch(err){ s.problems.push(f.name + ': nicht lesbar'); continue; }
+    const first = t.trim()[0];
+    if(first === '{' || first === '['){
+      try{
+        const j = JSON.parse(t);
+        if(j && j.format === 'zuendfunke-backup' && Array.isArray(j.e)){ s.backup = j; s.names.push(f.name + ' (Backup)'); }
+        else if(j && (j.T4 || j.TT)){ s.wissen = j; s.names.push(f.name + ' (Wissen)'); }
+        else s.problems.push(f.name + ': JSON nicht erkannt');
+      }catch(err){ s.problems.push(f.name + ': kein gültiges JSON'); }
+      continue;
+    }
+    const {header: h, rows} = parseCSV(t);
+    if(h[0] === 'id' && h.includes('titel') && h.includes('typ')){ s.e = rows.map(r => ({...BLANK, ...r})); s.names.push(f.name + ' (Journal)'); }
+    else if(h.includes('aufgabe') && h.includes('intervall_km')){ s.p = rows; s.names.push(f.name + ' (Wartungsplan)'); }
+    else if(h.includes('aufgabe') && h.includes('km') && h.includes('datum')){ s.s = rows; s.names.push(f.name + ' (Service)'); }
+    else s.problems.push(f.name + ': Spalten nicht erkannt');
+  }
+  const eRows = s.backup ? s.backup.e : s.e;
+  if(eRows){
+    const ids = eRows.map(r => r.id), uniq = new Set(ids);
+    s.blockers = [];
+    if(ids.some(i => !i)) s.blockers.push('Zeilen ohne id');
+    if(uniq.size !== ids.length) s.blockers.push((ids.length - uniq.size) + ' doppelte ids');
+    const bad = eRows.filter(r => !['T4', 'TT', 'WERKSTATT'].includes(r.fahrzeug)).length;
+    if(bad) s.problems.push(bad + ' Zeilen mit unbekanntem Fahrzeug (werden mit übernommen)');
+    const quellen = new Set(eRows.map(r => r.quelle).filter(Boolean));
+    s.lost = s.backup ? [] : E.filter(x => String(x.quelle || '').startsWith('app:') && !uniq.has(x.id) && !quellen.has(x.quelle));
+  }
+  if(!Store.ok){ s.blockers = (s.blockers || []).concat(['Der Browser-Speicher ist nicht verfügbar']); }
+  staged = s;
+}
+async function commitStaged(){
+  const s = staged; if(!s || (s.blockers && s.blockers.length)) return;
+  const norm = r => ({...BLANK, ...r});
+  if(s.backup){
+    const b = s.backup;
+    await Store.set('e', b.e.map(norm)); await Store.set('s', b.s || []); await Store.set('p', b.p || []);
+    await Store.set('wissen', b.wissen || {}); await Store.set('log', b.log || []); await Store.set('meta', b.meta || {});
+  } else {
+    if(s.e){
+      const keep = s.keepApp ? s.lost.map(eToRec) : [];
+      await Store.set('e', s.e.map(norm).concat(keep)); await Store.set('log', []);
+      APPMETA.dirty = keep.length > 0; if(!keep.length) APPMETA.dirty = false;
+    }
+    if(s.s) await Store.set('s', s.s);
+    if(s.p) await Store.set('p', s.p);
+    if(s.wissen) await Store.set('wissen', s.wissen);
+    APPMETA.imported = new Date().toISOString(); await Store.set('meta', APPMETA);
+  }
+  location.reload();
+}
+function stagedHtml(){
+  const s = staged; if(!s) return '';
+  const lines = [];
+  if(s.backup) lines.push(`Backup vom ${esc(String(s.backup.erstellt || '').slice(0, 10))}: ${nf(s.backup.e.length)} Einträge. <b>Ersetzt alle Daten in der App.</b>`);
+  else {
+    if(s.e) lines.push(`Journal: ${nf(s.e.length)} Einträge. <b>Ersetzt</b> die ${nf(E.length)} Einträge in der App.`);
+    if(s.s) lines.push(`Service-Nachweis: ${nf(s.s.length)} Zeilen (ersetzt den bisherigen).`);
+    if(s.p) lines.push(`Wartungsplan: ${nf(s.p.length)} Zeilen (ersetzt den bisherigen).`);
+    if(s.wissen) lines.push(`Wissen: ${Object.keys(s.wissen).join(', ')} (ersetzt das bisherige).`);
+  }
+  const bl = (s.blockers || []).map(b => `<div class="badline">${esc(b)}. Import nicht möglich.</div>`).join('');
+  const pr = s.problems.map(p => `<div class="warnline">${esc(p)}</div>`).join('');
+  const lost = s.lost && s.lost.length ? `<label class="small" style="display:flex;gap:8px;align-items:flex-start;margin-top:8px"><input type="checkbox" data-keepapp ${s.keepApp ? 'checked' : ''}> <span>${nf(s.lost.length)} in der App erfasste Einträge fehlen in dieser Datei. Diese behalten und anhängen. Sonst gehen sie verloren.</span></label>` : '';
+  const ok = !(s.blockers && s.blockers.length) && (s.backup || s.e || s.s || s.p || s.wissen);
+  return `<div class="note-box" style="margin-top:12px"><div><b>Gefunden:</b> ${s.names.map(esc).join(', ') || 'nichts Brauchbares'}</div>
+    ${lines.map(l => `<div class="small" style="margin-top:4px">${l}</div>`).join('')}${bl}${pr}${lost}
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">${ok ? '<button class="btn" data-dimp-ok>Übernehmen</button>' : ''}<button class="btn ghost" data-dimp-cancel>Verwerfen</button></div></div>`;
+}
+function renderData(){
+  const box = $('#daten');
+  if(!box.dataset.init){
+    box.dataset.init = 1;
+    box.addEventListener('click', async e => {
+      const x = e.target.closest('[data-dexp]');
+      if(x){
+        const k = x.dataset.dexp, d = todayIso();
+        if(k === 'eintraege') dl('eintraege.csv', toCSV(COLS, E.map(eToRec)));
+        else if(k === 'service') dl('service.csv', toCSV(S_COLS, RAW.s, '\r\n'));
+        else if(k === 'plan') dl('wartungsplan.csv', toCSV(P_COLS, RAW.p, '\r\n'));
+        else if(k === 'backup') dl('zuendfunke-backup-' + d + '.json', backupJson(), 'application/json');
+        if(k === 'eintraege' || k === 'backup'){ await markBackup(); renderData(); }
+        return;
+      }
+      if(e.target.closest('[data-dimp-ok]')){ await commitStaged(); return; }
+      if(e.target.closest('[data-dimp-cancel]')){ staged = null; renderData(); return; }
+      if(e.target.closest('[data-dpersist]')){ try{ await navigator.storage.persist(); }catch(err){} renderData(); }
+    });
+    box.addEventListener('change', async e => {
+      if(e.target.id === 'imp-files' && e.target.files.length){ await stageFiles([...e.target.files]); renderData(); return; }
+      const k = e.target.closest('[data-keepapp]'); if(k && staged){ staged.keepApp = k.checked; }
+    });
+  }
+  const lb = APPMETA.lastBackup ? new Date(APPMETA.lastBackup).toLocaleString('de-DE', {dateStyle: 'medium', timeStyle: 'short'}) : 'noch nie';
+  const im = APPMETA.imported ? new Date(APPMETA.imported).toLocaleString('de-DE', {dateStyle: 'medium', timeStyle: 'short'}) : 'noch nie';
+  const nApp = E.filter(x => String(x.quelle || '').startsWith('app:')).length;
+  const nW = Object.keys(WISSEN).length;
+  const focus = document.activeElement && document.activeElement.id;
+  box.innerHTML = `
+    <div class="panel"><h2>Bestand</h2>
+      <div class="list">
+        <div class="item"><div class="d"></div><div class="t">Journal<div class="meta"><span>${nf(E.length)} Einträge, davon ${nf(nApp)} in der App erfasst</span></div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Service-Nachweis und Wartungsplan<div class="meta"><span>${nf(RAW.s.length)} Nachweise · ${nf(RAW.p.length)} Intervalle</span></div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Wissen<div class="meta"><span>${nW ? 'geladen: ' + Object.keys(WISSEN).join(', ') : 'nicht geladen (optional)'}</span></div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Zuletzt importiert<div class="meta"><span>${esc(im)}</span></div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Letztes Backup<div class="meta"><span>${esc(lb)}</span>${APPMETA.dirty ? '<span class="pill warn">ungesicherte Änderungen</span>' : ''}</div></div><div class="b"></div></div>
+        <div class="item"><div class="d"></div><div class="t">Browser-Speicher<div class="meta"><span id="persist-state">${Store.ok ? 'verfügbar' : 'nicht verfügbar'}</span></div></div><div class="b"><button class="btn ghost" data-dpersist>Dauerhaft anfordern</button></div></div>
+      </div></div>
+    <div class="panel" style="margin-top:16px"><h2>Daten importieren</h2>
+      <p class="small muted" style="margin-top:0">Wähle eine oder mehrere Dateien: <b>eintraege.csv</b> (Journal), <b>service.csv</b>, <b>wartungsplan.csv</b>, optional <b>wissen.json</b> oder ein Backup (<b>zuendfunke-backup-….json</b>). Die Dateien werden an Spalten erkannt, nicht am Namen. Nichts verlässt dein Gerät.</p>
+      <input type="file" id="imp-files" multiple accept=".csv,.json,text/csv,application/json">
+      ${stagedHtml()}</div>
+    <div class="panel" style="margin-top:16px"><h2>Exportieren und sichern</h2>
+      <p class="small muted" style="margin-top:0">Die Daten liegen nur in diesem Browser. Sichere sie regelmäßig. Das Journal wird im bekannten CSV-Format (27 Spalten, UTF-8) exportiert und lässt sich in Excel, Numbers oder LibreOffice öffnen.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" data-dexp="eintraege">Journal als CSV</button>
+        <button class="btn" data-dexp="backup">Komplett-Backup (JSON)</button>
+        <button class="btn ghost" data-dexp="service">Service-CSV</button>
+        <button class="btn ghost" data-dexp="plan">Wartungsplan-CSV</button>
+      </div></div>
+    <div class="note-box" style="margin-top:16px">Die App arbeitet eigenständig: Sie ist die Quelle der Wahrheit für die hier gespeicherten Daten. Neue Einträge tragen eine ID mit <b>A</b> (A1, A2 …) und die Quelle <b>app:…</b>. Wartungen mit km-Stand schreibt sie zusätzlich in den Service-Nachweis. Die exportierten CSV-Dateien haben das Format der bisherigen Dateien und können diese direkt ersetzen.</div>`;
+  if(focus){ const f = document.getElementById(focus); if(f && f.focus) try{ f.focus(); }catch(err){} }
+  try{ if(navigator.storage && navigator.storage.persisted) navigator.storage.persisted().then(p => { const el = $('#persist-state'); if(el && Store.ok) el.textContent = p ? 'verfügbar, dauerhaft' : 'verfügbar, nicht dauerhaft gesichert'; }); }catch(err){}
+}
+
+function renderEntry(){
+  const box = $('#erfassen');
+  if(!box.dataset.init){ box.dataset.init=1; box.innerHTML = `
+    <div class="note-box" style="margin-bottom:14px">Neue Einträge gelten sofort: Sie erscheinen im Journal, in den Kosten und in den Fälligkeiten. Nenne Fahrzeug, Datum, Titel und, wenn bekannt, km-Stand und Betrag. Ausgaben bekommen den Zweck „Unterhalt“ als Vorschlag; bestätige oder ändere ihn unter Kosten.</div>
+    <div class="panel"><h2>Neuer Eintrag</h2>
+    <p class="small muted" style="margin-top:0">Wird sofort im Journal gespeichert (lokal in diesem Browser).</p>
+    <form class="entry" id="f" novalidate>
+      <label>Fahrzeug<select id="f-fahrzeug" required><option>T4</option><option>TT</option><option>WERKSTATT</option></select></label>
+      <label>Typ<select id="f-typ">${Object.entries(TYP).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label>
+      <label>Datum<input type="date" id="f-datum" value="${todayIso()}"></label>
+      <label>km-Stand<input type="number" id="f-km" inputmode="numeric" placeholder="z. B. 491300"></label>
+      <label class="wide">Titel<input type="text" id="f-titel" required placeholder="z. B. Ölfilter MANN W950/4 - eBay"></label>
+      <label>Betrag (€)<input type="number" id="f-betrag" step="0.01" inputmode="decimal"></label>
+      <label>Kostenart<select id="f-kostenart"><option value="">–</option>${KA.map(k=>`<option>${k}</option>`).join('')}</select></label>
+      <label>Bereich<input type="text" id="f-bereich" list="bereiche"></label>
+      <label>Kategorie<select id="f-kat">${katOptions("","","– keine –")}</select></label>
+      <label>Lagerort<select id="f-ort">${ortOptions("","","– kein Ort –")}</select></label>
+      <label>Box<input type="text" id="f-box"></label>
+      <label>Fach<input type="text" id="f-fach"></label>
+      <label class="wide">Notiz<textarea id="f-notiz" rows="3"></textarea></label>
+      <div class="wide" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="f-save">Speichern</button><span class="small" id="f-msg" role="status"></span></div>
+    </form>
+        <datalist id="bereiche">${[...new Set(E.map(x=>x.bereich).filter(Boolean))].slice(0,60).map(o=>`<option value="${esc(o)}">`).join('')}</datalist>
+    </div>
+    <div class="panel" style="margin-top:16px"><h2>Zuletzt erfasst</h2><div class="list" id="pend"><div class="empty">Noch nichts erfasst.</div></div></div>`;
+    $('#f').addEventListener('submit', async ev => { ev.preventDefault(); if(!DB){ $('#f-msg').textContent = 'Speicher nicht verfügbar. Bitte die Seite neu laden.'; return; }
+      const v = id => $('#f-'+id).value.trim();
+      
+      const doc = {aktion:'neu', fahrzeug:v('fahrzeug'), typ:v('typ'), datum:v('datum'), km:v('km')?+v('km'):null, titel:(v('titel')||v('notiz').slice(0,80)||'Ohne Titel'), betrag:v('betrag')?+v('betrag'):null, kostenart:v('kostenart'), bereich:v('bereich'), kategorie:(v('kat').split('|')[0]||''), unterkategorie:(v('kat').split('|')[1]||''), lagerort:(v('ort').split('|')[0]||''), platz:(v('ort').split('|')[1]||''), box:v('box'), fach:v('fach'), notiz:v('notiz'), erstellt:new Date().toISOString(), verarbeitet:false};
+      { const w = kmCheck(doc.fahrzeug, doc.km, doc.datum); const key = doc.fahrzeug + '|' + doc.km; if(w && kmAck !== key){ kmAck = key; $('#f-msg').textContent = w; return; } kmAck = null; }
+      $('#f-save').disabled = true;
+      try{ await DB.collection('eingaben').add(doc); $('#f-msg').textContent = 'Gespeichert.'; ['titel','betrag','km','notiz','box','fach'].forEach(i=>$('#f-'+i).value=''); }
+      catch(e){ $('#f-msg').textContent = 'Nicht gespeichert: ' + (e && e.code === 'invalid_argument' ? 'keine Schreibrechte für diese Seite.' : (e?.message || 'Fehler beim Speichern.')); }
+      finally{ $('#f-save').disabled = !DB; }
+    });
+  }
+  const pl = $('#pend');
+  const rl = recentList(); if(pl) pl.innerHTML = rl.length ? rl.map(p => { const d=p.data; const ref = d.ref && byId[d.ref];
+    return `<div class="item"><div class="d">${d.datum?dstr(d.datum):''}</div><div class="t">${d.aktion==='aendern' ? `„${esc(ref?ref.titel:d.titel)}“ → geändert: ${esc(Object.keys(d.felder||{}).join(', '))}` : d.aktion==='geliefert' ? `„${esc(ref?ref.titel:d.ref)}“ → ins Lager ${esc(d.lagerort||'')}${d.platz?' › '+esc(d.platz):''}` : d.aktion==='status' ? `„${esc(ref?ref.titel:d.ref)}“ → ${esc(d.status)}` : d.aktion==='zweck' ? `„${esc(ref?ref.titel:d.ref)}“ → Zweck ${esc(ZW_SHORT[d.zweck]||d.zweck)}` : d.aktion==='kategorie' ? `„${esc(ref?ref.titel:d.ref)}“ → ${esc(d.kategorie)} › ${esc(d.unterkategorie)}` : d.aktion==='ort' ? `„${esc(ref?ref.titel:d.ref)}“ → ${esc(d.lagerort)}${d.platz?' › '+esc(d.platz):''}` : esc(d.titel)}<div class="meta"><span class="tag ${d.fahrzeug||(ref&&ref.fahrzeug)||''}">${esc(d.fahrzeug||(ref&&ref.fahrzeug)||'')}</span><span>${d.aktion==='aendern'?'Änderung':d.aktion==='geliefert'?'Lieferung':d.aktion==='status'?'Statusänderung':d.aktion==='zweck'?'Zweck-Zuordnung':d.aktion==='kategorie'?'Kategorie-Zuordnung':d.aktion==='ort'?'Orts-Zuordnung':(TYP[d.typ]||'')}</span><span>erfasst ${new Date(d.erstellt).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'})}</span></div></div><div class="b">${d.betrag!=null?eur(d.betrag,2):''} ${p.undoable ? `<button class="btn ghost" data-undo="${p.id}">zurücknehmen</button>` : ''}</div></div>`; }).join('') : '<div class="empty">Noch nichts erfasst.</div>';
+}
+
+
+
+// ---------- Bearbeiten (Überblick & Chronik) ----------
+const EDIT_NUM = ['km','betrag'];
+function closeEdit(){ const o=$('#editov'); if(o) o.remove(); document.removeEventListener('keydown', editEsc); }
+function editEsc(e){ if(e.key==='Escape') closeEdit(); }
+function openEdit(id){
+  const x0 = byId[id]; if(!x0) return; closeEdit();
+  const x = pendingEdit[id] ? {...x0, ...pendingEdit[id]} : x0;
+  const cur = {fahrzeug:x.fahrzeug||'', typ:x.typ||'', datum:x.datum||'', km:x.km, betrag:x.betrag, kostenart:x.kostenart||'', bereich:x.bereich||'', status:x.status||'', zweck:zweckOf(x), titel:x.titel||'', notiz:x.notiz||''};
+  const stats = [...new Set(E.map(e=>e.status).filter(Boolean))]; if(cur.status && !stats.includes(cur.status)) stats.push(cur.status);
+  const sel = (f, opts, withBlank) => `<select id="e-${f}">${withBlank?'<option value="">–</option>':''}${opts.map(([v,l])=>`<option value="${esc(v)}"${v===cur[f]?' selected':''}>${esc(l)}</option>`).join('')}</select>`;
+  const o = document.createElement('div'); o.id = 'editov';
+  o.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) 12px 80px';
+  o.innerHTML = `<form class="entry panel" id="editf" novalidate style="max-width:680px;width:100%;margin-top:3vh" role="dialog" aria-modal="true" aria-label="Eintrag bearbeiten">
+    <h2 class="wide" style="margin:0">Eintrag bearbeiten</h2>
+    <div class="wide small muted">${esc(x0.id)} · Änderungen gelten sofort und stehen im nächsten CSV-Export.</div>
+    <label class="wide">Titel<input type="text" id="e-titel" value="${esc(cur.titel)}"></label>
+    <label>Fahrzeug${sel('fahrzeug',['T4','TT','WERKSTATT'].map(v=>[v,v]))}</label>
+    <label>Typ${sel('typ',Object.entries(TYP))}</label>
+    <label>Datum<input type="date" id="e-datum" value="${esc(cur.datum)}"></label>
+    <label>km-Stand<input type="number" id="e-km" inputmode="numeric" value="${cur.km==null?'':cur.km}"></label>
+    <label>Betrag (€)<input type="number" id="e-betrag" step="0.01" inputmode="decimal" value="${cur.betrag==null?'':cur.betrag}"></label>
+    <label>Kostenart${sel('kostenart',KA.map(k=>[k,k]),true)}</label>
+    <label>Zweck${sel('zweck',ZW.map(z=>[z,ZW_SHORT[z]]),true)}</label>
+    <label>Status${sel('status',stats.map(v=>[v,v]),true)}</label>
+    <label>Bereich<input type="text" id="e-bereich" list="bereiche" value="${esc(cur.bereich)}"></label>
+    <label class="wide">Notiz<textarea id="e-notiz" rows="6">${esc(cur.notiz)}</textarea></label>
+    <div class="wide" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn" type="submit" id="e-save">Speichern</button><button class="btn ghost" type="button" id="e-cancel">Abbrechen</button><span class="small" id="e-msg" role="status"></span></div>
+  </form>`;
+  document.body.appendChild(o);
+  document.addEventListener('keydown', editEsc);
+  o.addEventListener('click', ev => { if(ev.target===o) closeEdit(); });
+  $('#e-cancel').addEventListener('click', closeEdit);
+  $('#e-titel').focus();
+  $('#editf').addEventListener('submit', async ev => {
+    ev.preventDefault(); const msg = $('#e-msg');
+    if(!DB){ msg.textContent = 'Speicher nicht verfügbar. Bitte die Seite neu laden.'; return; }
+    const felder = {}, alt = {};
+    for(const f of Object.keys(cur)){
+      const el = $('#e-'+f); if(!el) continue;
+      let v = el.value.trim(); if(EDIT_NUM.includes(f)) v = v==='' ? null : +v;
+      const was = cur[f]; if((v ?? '') !== (was ?? '')){ felder[f] = v; alt[f] = was ?? null; }
+    }
+    if('titel' in felder && !felder.titel){ msg.textContent = 'Der Titel darf nicht leer sein.'; return; }
+    if(!Object.keys(felder).length){ msg.textContent = 'Nichts geändert.'; return; }
+    const b = $('#e-save'); b.disabled = true;
+    try{
+      await DB.collection('eingaben').add({aktion:'aendern', ref:id, fahrzeug:x.fahrzeug, titel:x0.titel, felder, alt, datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false});
+      closeEdit(); R[tab](); setCounts();
+    }catch(e){ b.disabled = false; msg.textContent = 'Nicht gespeichert: ' + (e && e.code === 'invalid_argument' ? 'keine Schreibrechte für diese Seite.' : (e?.message || 'Fehler beim Speichern.')); }
+  });
+}
+
+// ---------- Wissen (aus den NotebookLM-Notebooks) ----------
+const W_TOPICS = {T4:/climatronic|abs-leuchte|airbag|kombiinstrument|kraftstoffanzeige|18058|p1650|kabelbaum|agm|kupplung/i, TT:/kombiinstrument|temperatur|schrittmotor|g62|g2\b|g235|gra\b|zündspule|zuendspule|luftmassen/i};
+let wissQ = '';
+function renderWissen(){
+  const box = $('#wissen');
+  if(!box.dataset.init){ box.dataset.init=1; box.innerHTML = `<div class="filters"><input type="search" id="wq" placeholder="Im Wissen suchen: Fehlercode, Teil, Wert …" aria-label="Wissen durchsuchen"></div><div id="wres"></div>`;
+    $('#wq').addEventListener('input', e => { wissQ = e.target.value; renderWissen(); }); }
+  const q = wissQ.toLowerCase().trim();
+  const hit = (...t) => !q || t.join(' ').toLowerCase().includes(q);
+  const out = carsV().map(car => { const w = WISSEN[car]; if(!w) return '';
+    const bl = w.bloecke.filter(b => hit(b.t, b.k, b.p.join(' '), b.q.join(' ')));
+    const fl = w.faelle.filter(f => hit(f.t, f.bezug, f.schritte.join(' '), f.luecke));
+    const rel = E.filter(x => x.fahrzeug===car && ['todo','bestellung'].includes(x.typ) && ['offen','bestellt','zu bestellen'].includes(x.status) && !x.eltern_id && W_TOPICS[car].test(x.titel+' '+x.bereich+' '+x.notiz)).slice(0,8);
+    return `<section class="wcar">
+      <div class="whead"><h2><span class="tag ${car}">${car}</span> ${esc(CARS[car].name)}</h2><div class="wmeta">Notebook „${esc(w.notebook)}“ · ${w.nquellen} Quellen · Stand ${dstr(w.stand)}</div></div>
+      <div class="wneu" aria-label="Zuletzt ergänzt">${w.neu.map(n=>`<span>neu: ${esc(n)}</span>`).join('')}</div>
+      ${fl.length ? `<div class="wcases" style="margin-top:14px">${fl.map(f=>`<article class="panel wcase"><h3>Fallakte: ${esc(f.t)}</h3><div class="small muted">${esc(f.bezug)}</div><ol class="wsrc" style="color:var(--ink);font-size:.95rem;gap:6px;margin-top:8px;padding-left:1.2rem">${f.schritte.map(t=>`<li>${esc(t)}</li>`).join('')}</ol><div class="note" style="margin-top:10px"><b>Nicht in den Quellen:</b> ${esc(f.luecke)}</div></article>`).join('')}</div>` : ''}
+      ${rel.length && !q ? `<div class="panel" style="margin:14px 0"><h3 style="margin-top:0">Offen im Journal – passt zu diesem Wissen</h3><div class="list">${rel.map(x=>itemHtml(x,true)).join('')}</div></div>` : ''}
+      <div style="margin-top:14px">${bl.map(b=>`<details class="wk" ${q?'open':''}><summary><span>${esc(b.t)}</span><span class="small muted">${esc(b.k)}</span></summary><div class="wbody">${b.p.map(t=>`<p>${esc(t)}</p>`).join('')}${b.fall?`<p class="small muted">${esc(b.fall)}</p>`:''}<div class="wsub">Quellen im Notebook</div><ul class="wsrc">${b.q.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div></details>`).join('') || (fl.length?'':'<div class="empty">Nichts gefunden.</div>')}</div>
+      <p class="small muted" style="margin-top:10px">Themenüberblick aus dem Notebook, kein Volltext.</p>
+    </section>`; }).join('');
+  $('#wres').innerHTML = out || '<div class="note-box">Kein Wissen geladen. Optional: Im Menü <a href="#" data-goto="daten">Daten</a> eine <b>wissen.json</b> importieren.</div>';
+}
+
+// ---------- Bestellung ----------
+let beAll = false;
+const dlv = {id:null, ort:'', kat:'', box:'', fach:''};
+function renderBest(){
+  const box = $('#bestellung');
+  if(!box.dataset.init){ box.dataset.init = 1; box.innerHTML = `
+    <div class="note-box" style="margin-bottom:14px">Hier siehst du, was bestellt werden muss und was unterwegs ist. Kommt ein Teil an, tippst du auf „Geliefert“ und wählst den Lagerort. Es wandert dann sofort ins Lager.</div>
+    <div class="panel"><h2>Neue Bestellung</h2>
+      <p class="small muted" id="be-state" style="margin-top:0"></p>
+      <form class="fr-form" id="be-form" novalidate>
+        <div class="fr-row">
+          <label>Fahrzeug<select id="be-fz"><option>T4</option><option>TT</option></select></label>
+          <label>Geplanter Preis (€)<input type="number" id="be-preis" step="0.01" inputmode="decimal"></label>
+        </div>
+        <label>Teil, Händler, Teilenummer<input type="text" id="be-titel" placeholder="z. B. Temperaturgeber G2 - eBay"></label>
+        <div class="fr-actions"><button class="btn" type="submit" id="be-save">Als bestellt notieren</button><span class="small" id="be-msg" role="status"></span></div>
+      </form>
+    </div>
+    <div id="be-list" style="margin-top:16px"></div>`;
+    $('#be-form').addEventListener('submit', ev => { ev.preventDefault(); saveBestellung(); });
+    $('#be-fz').value = VEH==='TT' ? 'TT' : 'T4';
+  }
+  updateBest();
+}
+function updateBest(){
+  if(!$('#be-state')) return;
+  $('#be-state').textContent = '';
+  $('#be-save').disabled = !DB;
+  const cars = carsV();
+  const eff = x => pendingStatus[x.id] || x.status;
+  const zu = E.filter(x => cars.includes(x.fahrzeug) && x.typ==='bestellung' && eff(x)==='zu bestellen');
+  const weg = E.filter(x => cars.includes(x.fahrzeug) && ['bestellung','todo'].includes(x.typ) && eff(x)==='bestellt');
+  const da = E.filter(x => cars.includes(x.fahrzeug) && ['bestellung','todo'].includes(x.typ) && eff(x)==='geliefert');
+  const neu = pending.filter(p => p.data.aktion==='neu' && p.data.typ==='bestellung' && cars.includes(p.data.fahrzeug));
+  const row = (x, btns, extra) => `<div class="item"><div class="d">${x.datum ? dstr(x.datum) : ''}</div>
+    <div class="t">${esc(x.titel)}<div class="meta"><span class="tag ${esc(x.fahrzeug)}">${esc(x.fahrzeug)}</span>${x.bereich ? `<span>${esc(x.bereich)}</span>` : ''}${x.betrag_geplant!=null ? `<span>geplant ${eur(x.betrag_geplant,2)}</span>` : ''}${pendingStatus[x.id] ? `<span class="pill warn">${esc(pendingStatus[x.id])} · wartet auf Abgleich</span>` : ''}</div></div>
+    <div class="b">${btns}</div>${extra||''}</div>`;
+  const dform = x => `<div class="dlv">
+      <label>Lagerort<select data-dl="ort">${ortOptions('','','– wählen –')}</select></label>
+      <label>Box<input type="text" data-dl="box" value="${esc(dlv.box)}"></label>
+      <label>Fach<input type="text" data-dl="fach" value="${esc(dlv.fach)}"></label>
+      <label>Kategorie<select data-dl="kat">${katOptions('','','– keine –')}</select></label>
+      <div class="fr-actions" style="grid-column:1/-1"><button class="btn" data-dlsave="${esc(x.id)}">Ins Lager übernehmen</button><button class="btn ghost" data-dlcancel="1">abbrechen</button><span class="small" id="dl-msg" role="status"></span></div></div>`;
+  const zuShow = beAll ? zu : zu.slice(0,12);
+  let h = '';
+  h += `<div class="panel"><div class="sech" style="margin-top:0"><h2 style="margin:0">Unterwegs</h2><span class="small muted">${weg.length + neu.length} Teile</span></div><div class="list">` +
+    ((weg.length || neu.length) ? neu.map(p => `<div class="item"><div class="d">${p.data.datum ? dstr(p.data.datum) : ''}</div><div class="t">${esc(p.data.titel)}<div class="meta"><span class="tag ${esc(p.data.fahrzeug)}">${esc(p.data.fahrzeug)}</span><span class="pill warn">neu · wartet auf Abgleich</span></div></div><div class="b"></div></div>`).join('') +
+      weg.map(x => row(x, DB ? `<button class="btn ghost" data-geliefert="${esc(x.id)}">Geliefert</button>` : '', dlv.id===x.id ? dform(x) : '')).join('')
+      : '<div class="empty">Nichts unterwegs.</div>') + `</div></div>`;
+  if(da.length) h += `<div class="panel" style="margin-top:16px"><div class="sech" style="margin-top:0"><h2 style="margin:0">Geliefert, wartet auf Abgleich</h2><span class="small muted">${da.length}</span></div><div class="list">${da.map(x => row(x,'')).join('')}</div></div>`;
+  h += `<div class="panel" style="margin-top:16px"><div class="sech" style="margin-top:0"><h2 style="margin:0">Noch zu bestellen</h2><span class="small muted">${zu.length} Teile</span></div><div class="list">` +
+    (zuShow.length ? zuShow.map(x => row(x, DB ? `<button class="btn ghost" data-bestellt="${esc(x.id)}">Bestellt</button>` : '')).join('') : '<div class="empty">Nichts offen.</div>') +
+    `</div>${zu.length>12 ? `<div style="margin-top:8px"><button class="btn ghost" data-beall="1">${beAll ? 'weniger anzeigen' : 'alle ' + zu.length + ' anzeigen'}</button></div>` : ''}</div>`;
+  $('#be-list').innerHTML = h;
+  const s1 = document.querySelector('[data-dl="ort"]'); if(s1) s1.value = dlv.ort;
+  const s2 = document.querySelector('[data-dl="kat"]'); if(s2) s2.value = dlv.kat;
+}
+async function saveBestellung(){
+  const msg = $('#be-msg'), titel = $('#be-titel').value.trim();
+  if(!titel){ msg.textContent = 'Bitte nenne das Teil.'; $('#be-titel').focus(); return; }
+  if(!DB) return;
+  const pr = $('#be-preis').value;
+  $('#be-save').disabled = true;
+  try{
+    await DB.collection('eingaben').add({aktion:'neu', fahrzeug:$('#be-fz').value, typ:'bestellung', status:'bestellt', datum:todayIso(), bestellt_am:todayIso(), titel, betrag:null, betrag_geplant: pr ? +pr : null, erstellt:new Date().toISOString(), verarbeitet:false});
+    $('#be-titel').value = ''; $('#be-preis').value = '';
+    msg.textContent = 'Notiert.';
+  } catch(e){ msg.textContent = 'Nicht gespeichert: ' + (e && e.code==='invalid_argument' ? 'keine Schreibrechte für diese Seite.' : (e && e.message) || 'Fehler beim Speichern.'); }
+  finally{ $('#be-save').disabled = !DB; }
+}
+
+// Klicks und Eingaben für Fragen und Bestellung
+document.addEventListener('input', e => {
+  const d = e.target.closest('[data-dl]'); if(d){ const k = d.dataset.dl; if(k==='box'||k==='fach') dlv[k] = d.value; }
+});
+document.addEventListener('change', e => {
+  const d = e.target.closest('[data-dl]'); if(d){ const k = d.dataset.dl; if(k==='ort') dlv.ort = d.value; if(k==='kat') dlv.kat = d.value; }
+});
+document.addEventListener('click', async e => {
+  const be = e.target.closest('[data-bestellt]');
+  if(be && DB){ be.disabled = true; const x = byId[be.dataset.bestellt];
+    try{ await DB.collection('eingaben').add({aktion:'status', ref:x.id, status:'bestellt', fahrzeug:x.fahrzeug, titel:x.titel, datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false}); }
+    catch(err){ be.disabled = false; be.textContent = 'nicht gespeichert'; } return; }
+  const ge = e.target.closest('[data-geliefert]');
+  if(ge){ dlv.id = ge.dataset.geliefert; dlv.ort = ''; dlv.kat = ''; dlv.box = ''; dlv.fach = ''; updateBest(); return; }
+  if(e.target.closest('[data-dlcancel]')){ dlv.id = null; updateBest(); return; }
+  if(e.target.closest('[data-beall]')){ beAll = !beAll; updateBest(); return; }
+  const ds = e.target.closest('[data-dlsave]');
+  if(ds && DB){ const x = byId[ds.dataset.dlsave]; const m = $('#dl-msg');
+    if(!dlv.ort){ m.textContent = 'Bitte einen Lagerort wählen.'; return; }
+    const [o,p] = dlv.ort.split('|'), [k,u] = (dlv.kat||'').split('|'); ds.disabled = true;
+    try{ await DB.collection('eingaben').add({aktion:'geliefert', ref:x.id, fahrzeug:x.fahrzeug, titel:x.titel, lagerort:o||'', platz:p||'', box:(dlv.box||'').trim(), fach:(dlv.fach||'').trim(), kategorie:k||'', unterkategorie:u||'', datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false}); dlv.id = null; }
+    catch(err){ ds.disabled = false; m.textContent = 'Nicht gespeichert: ' + ((err && err.message) || 'Fehler'); } return; }
+});
+
+// ---------- Fahrzeugwahl ----------
+function renderVeh(){
+  const mk = (v,t,n,k) => `<button type="button" data-veh="${v}" aria-pressed="${VEH===v}" style="--vc:var(${v==='TT'?'--tt':v==='T4'?'--t4':'--accent'})"><span class="vt">${t}</span><span class="vn">${n}</span><span class="vk">${k}</span></button>`;
+  $('#veh').innerHTML = mk('T4','T4','VW T4 Multivan',kmf(CUR.T4.km)) + mk('TT','TT','Audi TT quattro',kmf(CUR.TT.km)) + mk('alle','Alle','Beide + Werkstatt','Gesamt');
+  const t = $('#pagetitle'), sb = $('#pagesub');
+  if(VEH==='alle'){ t.textContent = 'Zündfunke'; sb.textContent = 'T4 & TT im Überblick'; }
+  else { t.textContent = CARS[VEH].name; sb.textContent = CARS[VEH].model; }
+}
+function setVeh(v){
+  VEH = v; try{ localStorage.setItem('gb-veh', v); }catch(e){}
+  renderVeh();
+  const f = $('#f-fahrzeug'); if(f && v!=='alle') f.value = v;
+  const n = carsV().flatMap(c=>DUE[c]).filter(d=>d.st==='bad'||d.st==='warn').length + termine().length; $('#cnt-an').textContent = n || '';
+  R[tab](); setCounts(); window.scrollTo(0,0);
+}
+document.getElementById('veh').addEventListener('click', e => { const b = e.target.closest('button[data-veh]'); if(b) setVeh(b.dataset.veh); });
+
+// ---------- Tabs & Events ----------
+const R = {ueberblick:renderOverview, anstehend:renderDue, kosten:renderCosts, chronik:renderChron, lager:renderStock, bestellung:renderBest, wissen:renderWissen, erfassen:renderEntry, daten:renderData};
+let tab = 'ueberblick';
+function show(t){ tab = t; document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.tab===t)); Object.keys(R).forEach(k=>$('#'+k).hidden = k!==t); R[t](); try{ localStorage.setItem('gb-tab', t); }catch(e){} }
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if(b) show(b.dataset.tab); });
+document.addEventListener('click', async e => {
+  const cb = e.target.closest('#kosten [data-car]'); if(cb){ costCar = cb.dataset.car; renderCosts(); return; }
+  const vb = e.target.closest('#kosten [data-view]'); if(vb){ costView = vb.dataset.view; renderCosts(); return; }
+  const ra = e.target.closest('[data-rvall]'); if(ra){ rvAll = !rvAll; renderCosts(); return; }
+  const go = e.target.closest('[data-goto]'); if(go){ e.preventDefault(); show(go.dataset.goto); window.scrollTo(0,0); return; }
+  const ed = e.target.closest('[data-edit]'); if(ed){ openEdit(ed.dataset.edit); return; }
+  const zok = e.target.closest('[data-zok]');
+  if(zok && DB){ const x = byId[zok.dataset.zok]; const sel = document.querySelector(`[data-zsel="${x.id}"]`); zok.disabled = true;
+    try{ await DB.collection('eingaben').add({aktion:'zweck', ref:x.id, zweck:sel.value, fahrzeug:x.fahrzeug, titel:x.titel, betrag:x.betrag, datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false}); renderCosts(); }
+    catch(err){ zok.disabled = false; zok.textContent = 'nicht gespeichert'; } return; }
+  const done = e.target.closest('[data-done]');
+  if(done && DB){ done.disabled = true; const x = byId[done.dataset.done];
+    try{ await DB.collection('eingaben').add({aktion:'status', ref:x.id, status:'erledigt', fahrzeug:x.fahrzeug, datum:todayIso(), erstellt:new Date().toISOString(), verarbeitet:false}); }
+    catch(err){ done.disabled = false; done.textContent = 'nicht gespeichert'; } return; }
+  const undo = e.target.closest('[data-undo]');
+  if(undo && DB){ undo.disabled = true; try{ await DB.doc('eingaben/' + undo.dataset.undo).delete(); }catch(err){ undo.disabled=false; } }
+});
+setStamp();
+try{ const t = localStorage.getItem('gb-tab'); if(t && R[t]) tab = t; }catch(e){}
+if(!E.length) tab = 'daten';
+renderVeh(); show(tab); setCounts(); if(tab!=='anstehend') { const n = carsV().flatMap(c=>DUE[c]).filter(d=>d.st==='bad'||d.st==='warn').length + termine().length; $('#cnt-an').textContent = n || ''; }
+
+updateNotice();
+})();
+</script>
+<script>
+if('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')){
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+}
+</script>
+</body></html>

@@ -1,0 +1,8 @@
+# Keine Daten ins Repository
+*.csv
+*.xlsx
+wissen.json
+zuendfunke-backup*.json
+Daten/
+Export/
+.DS_Store
